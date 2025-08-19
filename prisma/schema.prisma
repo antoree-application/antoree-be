@@ -1,0 +1,259 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = "postgresql://admin:adminpassword@localhost:5432/main_db"
+  relationMode = "foreignKeys"
+}
+
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum LessonStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TeacherStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum EnglishLevel {
+  BEGINNER
+  ELEMENTARY
+  INTERMEDIATE
+  UPPER_INTERMEDIATE
+  ADVANCED
+  PROFICIENCY
+}
+
+// Bảng người dùng chung
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  phone       String?
+  avatar      String?
+  role        UserRole @default(STUDENT)
+  isActive    Boolean  @default(true)
+  lastLogin   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  student  Student?
+  teacher  Teacher?
+  reviews  Review[]
+  payments Payment[]
+
+  @@map("users")
+}
+
+// Bảng học viên
+model Student {
+  id            String       @id @default(cuid())
+  userId        String       @unique
+  englishLevel  EnglishLevel @default(BEGINNER)
+  learningGoals String?
+  timezone      String       @default("Asia/Ho_Chi_Minh")
+  
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+  lessons  Lesson[]
+
+  @@map("students")
+}
+
+// Bảng giáo viên
+model Teacher {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  bio               String?
+  experience        Int           @default(0) // Số năm kinh nghiệm
+  education         String?
+  certifications    String[]      // Các chứng chỉ
+  specialties       String[]      // Chuyên môn
+  hourlyRate        Decimal       @db.Decimal(10, 2)
+  timezone          String        @default("Asia/Ho_Chi_Minh")
+  languages         String[]      // Ngôn ngữ giảng dạy
+  videoIntroUrl     String?       // Video giới thiệu
+  status            TeacherStatus @default(PENDING)
+  totalLessons      Int           @default(0)
+  averageRating     Decimal?      @db.Decimal(3, 2)
+  responseTime      Int?          // Thời gian phản hồi (phút)
+  
+  // Relations
+  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availabilities TeacherAvailability[]
+  bookings      Booking[]
+  lessons       Lesson[]
+  reviews       Review[]
+  courses       Course[]
+
+  @@map("teachers")
+}
+
+// Lịch rảnh của giáo viên
+model TeacherAvailability {
+  id        String   @id @default(cuid())
+  teacherId String
+  dayOfWeek Int      // 0-6 (Chủ nhật-Thứ 7)
+  startTime String   // HH:mm format
+  endTime   String   // HH:mm format
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  // Relations
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, dayOfWeek, startTime])
+  @@map("teacher_availabilities")
+}
+
+// Gói học
+model Course {
+  id          String  @id @default(cuid())
+  teacherId   String
+  name        String
+  description String?
+  duration    Int     // Số phút mỗi buổi
+  totalLessons Int    // Tổng số buổi học
+  price       Decimal @db.Decimal(10, 2)
+  level       EnglishLevel
+  isActive    Boolean @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  teacher  Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+  lessons  Lesson[]
+
+  @@map("courses")
+}
+
+// Đặt lịch học thử
+model Booking {
+  id            String        @id @default(cuid())
+  studentId     String
+  teacherId     String
+  courseId      String?
+  scheduledAt   DateTime
+  duration      Int           @default(30) // Phút
+  notes         String?
+  status        BookingStatus @default(PENDING)
+  isTrialLesson Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  course  Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  lesson  Lesson?
+
+  @@map("bookings")
+}
+
+// Buổi học
+model Lesson {
+  id          String       @id @default(cuid())
+  bookingId   String?      @unique
+  studentId   String
+  teacherId   String
+  courseId    String?
+  scheduledAt DateTime
+  startedAt   DateTime?
+  endedAt     DateTime?
+  duration    Int          @default(60) // Phút
+  meetingUrl  String?      // Link meeting
+  notes       String?      // Ghi chú của giáo viên
+  homework    String?      // Bài tập về nhà
+  status      LessonStatus @default(SCHEDULED)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  course  Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@map("lessons")
+}
+
+// Thanh toán
+model Payment {
+  id            String        @id @default(cuid())
+  userId        String
+  amount        Decimal       @db.Decimal(10, 2)
+  currency      String        @default("VND")
+  paymentMethod String        // MOMO, VNPAY, BANK_TRANSFER, etc.
+  transactionId String?       @unique
+  status        PaymentStatus @default(PENDING)
+  description   String?
+  metadata      Json?         // Thông tin bổ sung
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+// Đánh giá giáo viên
+model Review {
+  id        String   @id @default(cuid())
+  studentId String
+  teacherId String
+  rating    Int      @db.SmallInt // 1-5 stars
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  student User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, teacherId]) // Mỗi học viên chỉ đánh giá 1 lần cho 1 giáo viên
+  @@map("reviews")
+}
+
+// Bảng cấu hình hệ thống
+model SystemConfig {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("string") // string, number, boolean, json
+
+  @@map("system_configs")
+}
