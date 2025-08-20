@@ -8,7 +8,6 @@ datasource db {
   relationMode = "foreignKeys"
 }
 
-
 enum UserRole {
   STUDENT
   TEACHER
@@ -50,6 +49,28 @@ enum EnglishLevel {
   UPPER_INTERMEDIATE
   ADVANCED
   PROFICIENCY
+}
+
+enum DocumentType {
+  TEACHING_CERTIFICATE
+  EDUCATION_DIPLOMA
+  LANGUAGE_CERTIFICATE
+  IDENTITY_DOCUMENT
+  BACKGROUND_CHECK
+  OTHER
+}
+
+enum AvailabilityType {
+  REGULAR
+  ONE_TIME
+  BLACKOUT
+}
+
+enum RateType {
+  TRIAL_LESSON
+  REGULAR_LESSON
+  GROUP_LESSON
+  INTENSIVE_COURSE
 }
 
 // Bảng người dùng chung
@@ -109,33 +130,99 @@ model Teacher {
   totalLessons      Int           @default(0)
   averageRating     Decimal?      @db.Decimal(3, 2)
   responseTime      Int?          // Thời gian phản hồi (phút)
+  profileCompleted  Boolean       @default(false) // Profile setup completed
+  verificationSubmitted Boolean   @default(false) // Verification documents submitted
+  availabilitySetup Boolean       @default(false) // Availability and rates setup completed
+  isLive            Boolean       @default(false) // Profile is live and accepting bookings
+  advanceNoticeHours Int?         @default(24)    // Minimum advance notice for bookings
+  maxAdvanceBookingHours Int?     @default(720)   // Maximum advance booking time
+  allowInstantBooking Boolean     @default(false) // Allow instant booking without approval
+  bookingInstructions String?     // Instructions for students when booking
   
   // Relations
   user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
   availabilities TeacherAvailability[]
+  rates         TeacherRate[]
   bookings      Booking[]
   lessons       Lesson[]
   reviews       Review[]
   courses       Course[]
+  verification  TeacherVerification?
 
   @@map("teachers")
 }
 
+// Teacher Verification Documents
+model TeacherVerification {
+  id            String                     @id @default(cuid())
+  teacherId     String                     @unique
+  documents     TeacherVerificationDocument[]
+  additionalNotes String?
+  linkedinUrl   String?
+  portfolioUrl  String?
+  reviewNotes   String?                   // Admin review notes
+  submittedAt   DateTime                  @default(now())
+  reviewedAt    DateTime?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+
+  // Relations
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@map("teacher_verifications")
+}
+
+// Individual verification documents
+model TeacherVerificationDocument {
+  id                      String             @id @default(cuid())
+  teacherVerificationId   String
+  type                    DocumentType
+  title                   String
+  documentUrl             String
+  description             String?
+  createdAt               DateTime           @default(now())
+
+  // Relations
+  teacherVerification TeacherVerification @relation(fields: [teacherVerificationId], references: [id], onDelete: Cascade)
+
+  @@map("teacher_verification_documents")
+}
+
 // Lịch rảnh của giáo viên
 model TeacherAvailability {
-  id        String   @id @default(cuid())
+  id        String            @id @default(cuid())
   teacherId String
-  dayOfWeek Int      // 0-6 (Chủ nhật-Thứ 7)
-  startTime String   // HH:mm format
-  endTime   String   // HH:mm format
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  dayOfWeek Int              // 0-6 (Chủ nhật-Thứ 7)
+  startTime String           // HH:mm format
+  endTime   String           // HH:mm format
+  type      AvailabilityType @default(REGULAR)
+  isActive  Boolean          @default(true)
+  createdAt DateTime         @default(now())
 
   // Relations
   teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@unique([teacherId, dayOfWeek, startTime])
   @@map("teacher_availabilities")
+}
+
+// Teacher Rates for different lesson types
+model TeacherRate {
+  id          String   @id @default(cuid())
+  teacherId   String
+  type        RateType
+  rate        Decimal  @db.Decimal(10, 2)
+  duration    Int?     @default(60) // Duration in minutes
+  maxStudents Int?     @default(1)  // For group lessons
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, type])
+  @@map("teacher_rates")
 }
 
 // Gói học
