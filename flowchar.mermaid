@@ -1,0 +1,70 @@
+flowchart TD
+    A[Student visits platform] --> B[Browse/Search Teachers]
+    B --> C{Filter Teachers?}
+    C -->|Yes| D[Apply Filters<br/>- Subject level<br/>- Price range<br/>- Availability<br/>- Rating<br/>- Native speaker]
+    C -->|No| E[View Teacher List]
+    D --> E
+    
+    E --> F[View Teacher Profile]
+    F --> G[Check Teacher Details<br/>- Bio & Experience<br/>- Teaching style<br/>- Reviews<br/>- Schedule<br/>- Hourly rate]
+    
+    G --> H{Interested in Teacher?}
+    H -->|No| B
+    H -->|Yes| I[Book Trial Lesson]
+    
+    I --> J[Select Available Time Slot]
+    J --> K[Provide Contact Info<br/>& Learning Goals]
+    K --> L[Confirm Trial Booking]
+    
+    L --> M[Teacher Receives Notification]
+    M --> N{Teacher Accepts?}
+    N -->|No| O[Student notified<br/>Suggest other teachers] --> B
+    N -->|Yes| P[Trial Lesson Confirmed]
+    
+    P --> Q[Attend Trial Lesson<br/>Via integrated video call]
+    Q --> R[Trial Lesson Completed]
+    
+    R --> S{Student Satisfied?}
+    S -->|No| T[Leave Feedback] --> U[Search Other Teachers] --> B
+    S -->|Yes| V[View Lesson Packages]
+    
+    V --> W[Select Package<br/>- 5 lessons<br/>- 10 lessons<br/>- 20 lessons<br/>- Custom package]
+    W --> X[Schedule Regular Lessons]
+    X --> Y[Proceed to Payment]
+    
+    Y --> Z[Choose Payment Method<br/>- Credit/Debit Card<br/>- Bank Transfer<br/>- E-wallet]
+    Z --> AA[Process Payment]
+    
+    AA --> BB{Payment Successful?}
+    BB -->|No| CC[Payment Failed<br/>Try again] --> Y
+    BB -->|Yes| DD[Package Purchased]
+    
+    DD --> EE[Lessons Scheduled in Calendar]
+    EE --> FF[Both parties receive confirmation]
+    FF --> GG[Start Regular Lessons]
+    
+    GG --> HH[Attend Scheduled Lessons]
+    HH --> II[Track Progress & Feedback]
+    II --> JJ{Package Completed?}
+    JJ -->|No| HH
+    JJ -->|Yes| KK[Renew Package or Find New Teacher]
+    KK --> V
+    
+    %% Admin/Teacher flows
+    LL[Teacher Registration] --> MM[Profile Setup & Verification]
+    MM --> NN[Set Availability & Rates]
+    NN --> OO[Teacher Profile Live]
+    OO --> PP[Receive Booking Requests]
+    
+    %% Styling
+    classDef studentAction fill:#e1f5fe
+    classDef teacherAction fill:#f3e5f5
+    classDef systemAction fill:#e8f5e8
+    classDef decision fill:#fff3e0
+    classDef payment fill:#fce4ec
+    
+    class A,B,D,E,F,G,I,J,K,Q,R,T,U,V,W,X,HH,II studentAction
+    class LL,MM,NN,OO,PP,M teacherAction
+    class L,P,EE,FF systemAction
+    class C,H,N,S,BB,JJ decision
+    class Y,Z,AA,CC,DD payment
