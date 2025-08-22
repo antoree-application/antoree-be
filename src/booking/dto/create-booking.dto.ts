@@ -19,7 +19,7 @@ export class CreateBookingDto {
   })
   @IsNotEmpty()
   @IsString()
-  @IsUUID()
+  
   teacherId: string;
 
   @ApiPropertyOptional({
@@ -28,7 +28,7 @@ export class CreateBookingDto {
   })
   @IsOptional()
   @IsString()
-  @IsUUID()
+  
   courseId?: string;
 
   @ApiProperty({
@@ -78,7 +78,7 @@ export class BookTrialLessonDto {
   })
   @IsNotEmpty()
   @IsString()
-  @IsUUID()
+  
   teacherId: string;
 
   @ApiProperty({
@@ -119,7 +119,7 @@ export class BookCourseDto {
   })
   @IsNotEmpty()
   @IsString()
-  @IsUUID()
+  
   courseId: string;
 
   @ApiProperty({
