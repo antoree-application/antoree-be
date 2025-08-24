@@ -27,8 +27,8 @@ async function bootstrap() {
 
   // Setup Swagger
   const config = new DocumentBuilder()
-    .setTitle('Chat-Chit API')
-    .setDescription('Real-time chat application API documentation')
+    .setTitle('Antoree')
+    .setDescription('API documentation')
     .setVersion('1.0')
     .addBearerAuth(
       {
@@ -76,7 +76,7 @@ async function bootstrap() {
   });
 
   // Set global prefix
-  // app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api');
 
   // Start the application
   const port = configService.get<number>('PORT') || 8000;
