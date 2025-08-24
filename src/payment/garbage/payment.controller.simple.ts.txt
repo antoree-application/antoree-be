@@ -1,0 +1,209 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  HttpStatus,
+  HttpCode,
+  Req,
+  Res,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Request, Response } from 'express';
+import { MomoService } from '../momo.service';
+import {
+  SimpleCoursePaymentDto,
+} from '../dto';
+import {
+  SimpleCoursePaymentVm,
+  PaymentResultVm,
+} from '../vm';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/role.guard';
+import { Roles } from '../../decorators/roles.decorator';
+import { CurrentUser } from '../../decorators/current-user.decorator';
+import { Public } from '../../decorators/public.decorator';
+import { ResponseMessage } from '../../decorators/response-message.decorator';
+import { Role } from '../../roles/role.enum';
+import { MPaymentService } from './payment.service.simple.ts.backup';
+
+@ApiTags('Payments')
+@Controller('payments/momo')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class MPaymentController {
+  constructor(
+    private readonly paymentService: MPaymentService, 
+    private readonly momoService: MomoService
+  ) {}
+
+  @Post('courses')
+  @Public() // Allow guest access for simple course payment
+  @ApiOperation({ summary: 'Simple course payment - student provides courseId and info, gets payment URL' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Simple course payment URL created successfully',
+    type: SimpleCoursePaymentVm,
+  })
+  @ResponseMessage('Simple course payment URL created successfully')
+  @HttpCode(HttpStatus.CREATED)
+  async createSimpleCoursePayment(
+    @Body() simpleCoursePaymentDto: SimpleCoursePaymentDto,
+    @Req() req: Request,
+  ): Promise<SimpleCoursePaymentVm> {
+    const userAgent = req.get('User-Agent');
+    const ipAddress = req.ip || req.connection.remoteAddress || '127.0.0.1';
+    
+    return this.paymentService.createSimpleCoursePayment(
+      simpleCoursePaymentDto,
+      ipAddress,
+      userAgent,
+    );
+  }
+
+  @Post('webhook/momo')
+  @Public()
+  @ApiOperation({ summary: 'MoMo webhook for payment success notification' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Webhook processed successfully',
+  })
+  async handleMomoWebhook(
+    @Body() body: any,
+    @Query() query: any,
+  ): Promise<{ RspCode: string; Message: string }> {
+    try {
+      const callbackData = { ...body, ...query };
+      await this.paymentService.handleMomoWebhook(callbackData);
+      
+      return {
+        RspCode: '00',
+        Message: 'Confirm Success',
+      };
+    } catch (error) {
+      console.error('MoMo webhook error:', error);
+      return {
+        RspCode: '01',
+        Message: 'Confirm Fail',
+      };
+    }
+  }
+
+  @Get('webhook/momo/return')
+  @Public()
+  @ApiOperation({ summary: 'MoMo return URL handler' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Payment return processed successfully',
+  })
+  async handleMomoReturn(
+    @Query() query: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    try {
+      const result = await this.paymentService.handleMomoReturn(query);
+      
+      if (result.success) {
+        // Redirect to success page
+        res.redirect(`http://localhost:3000/payment/success?paymentId=${result.paymentId}`);
+      } else {
+        // Redirect to failure page
+        res.redirect(`http://localhost:3000/payment/failed?error=${encodeURIComponent(result.errorMessage || 'Payment failed')}`);
+      }
+    } catch (error) {
+      console.error('MoMo return error:', error);
+      res.redirect(`http://localhost:3000/payment/failed?error=${encodeURIComponent('Payment processing error')}`);
+    }
+  }
+
+  @Post('momo/ipn')
+  @Public()
+  @ApiOperation({ summary: 'Handle MoMo IPN (Instant Payment Notification)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'IPN processed successfully',
+  })
+  async handleMomoIpn(
+    @Body() body: any,
+    @Query() query: any,
+  ): Promise<{ RspCode: string; Message: string }> {
+    try {
+      const callbackData = { ...body, ...query };
+      await this.paymentService.handleMomoCallback(callbackData);
+      
+      return {
+        RspCode: '00',
+        Message: 'Confirm Success',
+      };
+    } catch (error) {
+      console.error('MoMo IPN error:', error);
+      return {
+        RspCode: '01',
+        Message: 'Confirm Fail',
+      };
+    }
+  }
+
+  @Get('cache/stats')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Get payment cache statistics (Admin only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Cache statistics retrieved successfully',
+  })
+  @ResponseMessage('Cache statistics retrieved successfully')
+  async getCacheStats() {
+    return this.paymentService.getCacheStats();
+  }
+
+  @Delete('cache/clear/:type')
+  @Roles(Role.ADMIN)
+  @ApiOperation({ summary: 'Clear cache by type (Admin only)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Cache cleared successfully',
+  })
+  @ResponseMessage('Cache cleared successfully')
+  async clearCacheByType(
+    @Param('type') type: 'payment' | 'course' | 'student' | 'teacher',
+  ): Promise<{ message: string; cleared: boolean }> {
+    try {
+      await this.paymentService.clearCacheByType(type);
+      return {
+        message: `${type} cache cleared successfully`,
+        cleared: true,
+      };
+    } catch (error) {
+      return {
+        message: `Failed to clear ${type} cache: ${error.message}`,
+        cleared: false,
+      };
+    }
+  }
+
+  @Get('methods')
+  @Public()
+  @ApiOperation({ summary: 'Get available payment methods' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Payment methods retrieved successfully',
+  })
+  @ResponseMessage('Payment methods retrieved successfully')
+  async getPaymentMethods(): Promise<any> {
+    return [
+      {
+        id: 'momo',
+        name: 'MoMo E-Wallet',
+        description: 'Pay with MoMo e-wallet',
+        logo: 'https://developers.momo.vn/v3/assets/images/square-logo.svg',
+        enabled: true,
+        minAmount: 1000,
+        maxAmount: 20000000,
+        currency: 'VND',
+      },
+    ];
+  }
+}

@@ -1,0 +1,617 @@
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
+import { PrismaService } from '../common/prisma/prisma.service';
+import { MomoService } from './momo.service';
+import { NotificationService } from '../booking/notification.service';
+import { PaymentCacheService } from './cache.service';
+import {
+  CreatePaymentDto,
+  VnpayPaymentDto,
+  ProcessPaymentDto,
+  PaymentCallbackDto,
+  LessonPackageType,
+  SimpleCoursePaymentDto,
+  CreatePaymentUrlDto,
+  CreateLessonPackagePaymentUrlDto,
+  PaymentWebhookDto,
+} from './dto';
+import {
+  PaymentVm,
+  VnpayUrlVm,
+  PaymentResultVm,
+  LessonPackageOptionVm,
+  TeacherPackagesVm,
+  PaymentHistoryVm,
+  SimpleCoursePaymentVm,
+  PaymentNotificationVm,
+  PaymentUrlVm,
+  PaymentSuccessVm,
+  PaymentCacheStatsVm,
+} from './vm';
+import {
+  Payment,
+  PaymentStatus,
+  BookingStatus,
+  User,
+  Student,
+  Teacher,
+  Course,
+  LessonPackage,
+  LessonRate,
+  Role,
+} from '@prisma/client';
+
+type PaymentWithRelations = Payment & {
+  user: User & {
+    student?: Student;
+  };
+};
+
+@Injectable()
+export class PaymentService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly momoService: MomoService,
+    private readonly notificationService: NotificationService,
+    private readonly cacheService: PaymentCacheService,
+    @InjectQueue('payment-processing') private paymentQueue: Queue,
+  ) {}
+
+  /**
+   * Simple course payment flow - student provides courseId and their info, gets payment URL
+   */
+  async createSimpleCoursePayment(
+    simpleCoursePaymentDto: SimpleCoursePaymentDto,
+    ipAddress: string,
+    userAgent?: string,
+  ): Promise<SimpleCoursePaymentVm> {
+    // Validate course exists and is active
+    const course = await this.prisma.course.findUnique({
+      where: { id: simpleCoursePaymentDto.courseId },
+      include: { 
+        teacher: { 
+          include: { user: true } 
+        } 
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException(`Course with ID ${simpleCoursePaymentDto.courseId} not found`);
+    }
+
+    if (!course.isActive) {
+      throw new BadRequestException('Course is not active');
+    }
+
+    // Check if user already exists, if not create a temporary user record
+    let user = await this.prisma.user.findUnique({
+      where: { email: simpleCoursePaymentDto.email },
+      include: { student: true },
+    });
+
+    let student: any = null;
+
+    if (!user) {
+      // Create temporary user and student record for guest payment
+      user = await this.prisma.user.create({
+        data: {
+          email: simpleCoursePaymentDto.email,
+          firstName: simpleCoursePaymentDto.firstName,
+          lastName: simpleCoursePaymentDto.lastName,
+          phoneNumber: simpleCoursePaymentDto.phoneNumber,
+          role: Role.STUDENT,
+          isActive: true,
+          isEmailVerified: false, // Will be verified after payment
+          password: '', // Will be set after payment success
+        },
+      });
+
+      student = await this.prisma.student.create({
+        data: {
+          userId: user.id,
+          englishLevel: 'BEGINNER', // Default level
+        },
+      });
+    } else {
+      student = user.student;
+      if (!student) {
+        student = await this.prisma.student.create({
+          data: {
+            userId: user.id,
+            englishLevel: 'BEGINNER',
+          },
+        });
+      }
+    }
+
+    let totalPrice = Number(course.price);
+
+    // Apply coupon if provided
+    if (simpleCoursePaymentDto.couponCode) {
+      const couponDiscount = this.calculateSimpleCouponDiscount(
+        simpleCoursePaymentDto.couponCode,
+        totalPrice,
+      );
+      totalPrice = Math.max(totalPrice - couponDiscount, 1000); // Minimum 1,000 VND for MoMo
+    }
+
+    // Validate MoMo amount limits
+    if (!this.momoService.validateAmount(totalPrice)) {
+      throw new BadRequestException(`Payment amount ${totalPrice} VND is outside MoMo limits (1,000 - 20,000,000 VND)`);
+    }
+
+    const description = `Course payment: ${course.name} by ${simpleCoursePaymentDto.firstName} ${simpleCoursePaymentDto.lastName}`;
+
+    // Create payment record
+    const payment = await this.prisma.payment.create({
+      data: {
+        userId: user.id,
+        amount: totalPrice,
+        currency: 'VND',
+        paymentMethod: 'MOMO',
+        status: PaymentStatus.PENDING,
+        description,
+        metadata: {
+          courseId: course.id,
+          courseName: course.name,
+          teacherId: course.teacherId,
+          paymentType: 'simple_course_payment',
+          studentInfo: {
+            firstName: simpleCoursePaymentDto.firstName,
+            lastName: simpleCoursePaymentDto.lastName,
+            email: simpleCoursePaymentDto.email,
+            phoneNumber: simpleCoursePaymentDto.phoneNumber,
+          },
+          preferredStartDate: simpleCoursePaymentDto.preferredStartDate,
+          specialRequests: simpleCoursePaymentDto.specialRequests,
+          couponCode: simpleCoursePaymentDto.couponCode,
+          originalAmount: Number(course.price),
+          userAgent,
+          ipAddress,
+        } as any,
+      },
+    });
+
+    // Generate order ID and create MoMo payment URL
+    const orderId = this.momoService.generateOrderId(
+      `PAY${payment.id.slice(-6)}`,
+    );
+
+    const momoRequest = {
+      amount: totalPrice,
+      orderId,
+      orderInfo: description,
+    };
+
+    try {
+      const momoResponse = await this.momoService.createPaymentUrl(momoRequest);
+
+      // Update payment with order ID
+      await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          metadata: {
+            ...((payment.metadata as any) || {}),
+            orderId,
+          } as any,
+        },
+      });
+
+      return {
+        paymentUrl: momoResponse.paymentUrl,
+        paymentId: payment.id,
+        orderId,
+        amount: totalPrice,
+        course: {
+          id: course.id,
+          name: course.name,
+          description: course.description,
+          price: course.price.toString(),
+          level: course.level,
+          totalLessons: course.totalLessons,
+          duration: course.duration,
+          teacher: {
+            id: course.teacher.id,
+            name: `${course.teacher.user.firstName} ${course.teacher.user.lastName}`,
+            avatar: course.teacher.profileImageUrl,
+          },
+        },
+        student: {
+          id: student.id,
+          firstName: simpleCoursePaymentDto.firstName,
+          lastName: simpleCoursePaymentDto.lastName,
+          email: simpleCoursePaymentDto.email,
+          phoneNumber: simpleCoursePaymentDto.phoneNumber,
+          isNewUser: !user.isActive,
+        },
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000), // 15 minutes
+      };
+    } catch (error) {
+      // Delete the payment record if MoMo URL creation fails
+      await this.prisma.payment.delete({ where: { id: payment.id } });
+      throw new BadRequestException(`Failed to create MoMo payment URL: ${error.message}`);
+    }
+  }
+
+  /**
+   * Handle MoMo payment callback
+   */
+  async handleMomoCallback(callbackData: any): Promise<PaymentResultVm> {
+    // Verify callback signature
+    if (!this.momoService.verifyCallback(callbackData)) {
+      throw new BadRequestException('Invalid MoMo callback signature');
+    }
+
+    const transactionInfo = this.momoService.getTransactionInfo(callbackData);
+
+    // Find payment by order ID
+    const payment = await this.prisma.payment.findFirst({
+      where: {
+        metadata: {
+          path: ['orderId'],
+          equals: transactionInfo.orderId,
+        },
+      },
+      include: {
+        user: {
+          include: {
+            student: true,
+          },
+        },
+      },
+    });
+
+    if (!payment) {
+      throw new NotFoundException(`Payment not found for order ID: ${transactionInfo.orderId}`);
+    }
+
+    let errorMessage = '';
+
+    if (transactionInfo.isSuccess) {
+      // Update payment status to completed
+      await this.prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: PaymentStatus.COMPLETED,
+          transactionId: transactionInfo.transactionId,
+          metadata: {
+            ...((payment.metadata as any) || {}),
+            momoTransactionId: transactionInfo.transactionId,
+            payType: transactionInfo.payType,
+            responseTime: transactionInfo.responseTime,
+          } as any,
+        },
+      });
+
+      // Process successful payment
+      if (payment.metadata && (payment.metadata as any).paymentType === 'simple_course_payment') {
+        await this.handleSimpleCoursePaymentSuccess(payment as PaymentWithRelations);
+      } else {
+        // Handle other payment types (lesson packages, etc.)
+        await this.createBookingsFromPayment(payment as PaymentWithRelations);
+      }
+
+      console.log(`✅ Payment ${payment.id} completed successfully`);
+    } else {
+      // Handle failed payment
+      await this.handleFailedPayment(payment.id, transactionInfo);
+      errorMessage = this.momoService.getErrorMessage(transactionInfo.resultCode);
+    }
+
+    return {
+      success: transactionInfo.isSuccess,
+      paymentId: payment.id,
+      orderId: transactionInfo.orderId,
+      transactionId: transactionInfo.transactionId,
+      amount: transactionInfo.amount,
+      message: transactionInfo.isSuccess ? 'Payment completed successfully' : errorMessage,
+    };
+  }
+
+  /**
+   * Get payment by ID
+   */
+  async findOne(id: string, userId?: string): Promise<PaymentVm> {
+    const payment = await this.prisma.payment.findUnique({
+      where: { id },
+      include: {
+        user: {
+          include: {
+            student: true,
+          },
+        },
+      },
+    });
+
+    if (!payment) {
+      throw new NotFoundException(`Payment with ID ${id} not found`);
+    }
+
+    // Check if user is authorized to view this payment
+    if (userId && payment.userId !== userId) {
+      throw new BadRequestException('You are not authorized to view this payment');
+    }
+
+    return this.toPaymentVm(payment as PaymentWithRelations);
+  }
+
+  /**
+   * Get payment history for a user
+   */
+  async getPaymentHistory(
+    userId: string,
+    page: number = 1,
+    limit: number = 10,
+    status?: PaymentStatus,
+  ): Promise<PaymentHistoryVm> {
+    const where: any = { userId };
+    if (status) {
+      where.status = status;
+    }
+
+    const total = await this.prisma.payment.count({ where });
+    const payments = await this.prisma.payment.findMany({
+      where,
+      include: {
+        user: {
+          include: {
+            student: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      payments: payments.map(payment => this.toPaymentVm(payment as PaymentWithRelations)),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Create payment URL with caching for course purchase
+   */
+  async createPaymentUrlWithCache(
+    createPaymentUrlDto: CreatePaymentUrlDto,
+    ipAddress: string,
+    userAgent?: string,
+  ): Promise<PaymentUrlVm> {
+    // Cache the payment data for processing when payment succeeds
+    const paymentCacheData = {
+      paymentId: 'temp_' + Date.now(),
+      studentInfo: {
+        firstName: createPaymentUrlDto.firstName,
+        lastName: createPaymentUrlDto.lastName,
+        email: createPaymentUrlDto.email,
+        phoneNumber: createPaymentUrlDto.phoneNumber,
+        isNewUser: true,
+      },
+      courseInfo: {
+        id: createPaymentUrlDto.courseId,
+        name: '',
+        price: 0,
+        totalLessons: 0,
+        duration: 0,
+        level: '',
+        teacherId: '',
+        teacherName: '',
+      },
+      paymentInfo: {
+        amount: 0,
+        currency: 'VND',
+        orderId: '',
+      },
+      metadata: {
+        preferredStartDate: createPaymentUrlDto.preferredStartDate,
+        specialRequests: createPaymentUrlDto.specialRequests,
+        ipAddress,
+        userAgent,
+        createdAt: new Date().toISOString(),
+      },
+    };
+
+    // Create the payment using simple course payment flow
+    const result = await this.createSimpleCoursePayment(
+      {
+        courseId: createPaymentUrlDto.courseId,
+        firstName: createPaymentUrlDto.firstName,
+        lastName: createPaymentUrlDto.lastName,
+        email: createPaymentUrlDto.email,
+        phoneNumber: createPaymentUrlDto.phoneNumber,
+        preferredStartDate: createPaymentUrlDto.preferredStartDate,
+        specialRequests: createPaymentUrlDto.specialRequests,
+        couponCode: createPaymentUrlDto.couponCode,
+      },
+      ipAddress,
+      userAgent,
+    );
+
+    return {
+      paymentUrl: result.paymentUrl,
+      paymentId: result.paymentId,
+      orderId: result.orderId,
+      amount: result.amount,
+      currency: 'VND',
+      description: `Course payment: ${result.course.name}`,
+      expiresAt: result.expiresAt,
+    };
+  }
+
+  /**
+   * Handle MoMo webhook for payment processing
+   */
+  async handleMomoWebhook(callbackData: any): Promise<PaymentSuccessVm> {
+    const result = await this.handleMomoCallback(callbackData);
+    
+    if (!result.success) {
+      throw new BadRequestException(result.message);
+    }
+
+    // Get the completed payment details
+    const payment = await this.findOne(result.paymentId);
+    const paymentMetadata = payment.metadata as any;
+
+    return {
+      success: true,
+      paymentId: result.paymentId,
+      transactionId: result.transactionId,
+      amount: result.amount,
+      currency: 'VND',
+      student: {
+        id: payment.user.student?.id || '',
+        firstName: paymentMetadata?.studentInfo?.firstName || payment.user.firstName,
+        lastName: paymentMetadata?.studentInfo?.lastName || payment.user.lastName,
+        email: payment.user.email,
+        phoneNumber: paymentMetadata?.studentInfo?.phoneNumber || payment.user.phoneNumber,
+        isNewUser: !payment.user.isEmailVerified,
+        dashboardUrl: 'https://antoree.com/student/dashboard',
+      },
+      course: {
+        id: paymentMetadata?.courseId || '',
+        name: paymentMetadata?.courseName || '',
+        description: '',
+        totalLessons: 0,
+        duration: 0,
+        level: '',
+        startDate: paymentMetadata?.preferredStartDate || '',
+        teacher: {
+          id: paymentMetadata?.teacherId || '',
+          name: '',
+          email: '',
+          phoneNumber: '',
+          profileImage: '',
+        },
+      },
+      message: 'Payment completed successfully! Welcome to Antoree.',
+      nextSteps: [
+        'Check your email for course access details',
+        'Join your course chat group',
+        'Schedule your first lesson',
+        'Complete your profile setup',
+      ],
+    };
+  }
+
+  /**
+   * Handle MoMo return URL
+   */
+  async handleMomoReturn(callbackData: any): Promise<PaymentSuccessVm> {
+    return this.handleMomoWebhook(callbackData);
+  }
+
+  // Private helper methods
+
+  private async createBookingsFromPayment(
+    payment: PaymentWithRelations,
+    lessonPackageId?: string,
+  ): Promise<any[]> {
+    // Implementation for creating bookings from payment
+    return [];
+  }
+
+  private async handleFailedPayment(
+    paymentId: string,
+    transactionInfo: any,
+  ): Promise<void> {
+    await this.prisma.payment.update({
+      where: { id: paymentId },
+      data: {
+        status: PaymentStatus.FAILED,
+        metadata: {
+          ...transactionInfo,
+          failedAt: new Date().toISOString(),
+        } as any,
+      },
+    });
+  }
+
+  private toPaymentVm(
+    payment: PaymentWithRelations,
+    teacherId?: string,
+  ): PaymentVm {
+    return {
+      id: payment.id,
+      userId: payment.userId,
+      amount: payment.amount.toString(),
+      currency: payment.currency,
+      paymentMethod: payment.paymentMethod,
+      transactionId: payment.transactionId,
+      status: payment.status,
+      description: payment.description,
+      metadata: payment.metadata as any,
+      createdAt: payment.createdAt,
+      updatedAt: payment.updatedAt,
+    };
+  }
+
+  /**
+   * Calculate simple coupon discount for guest payments
+   */
+  private calculateSimpleCouponDiscount(
+    couponCode: string,
+    amount: number,
+  ): number {
+    // Simple coupon logic - in real implementation, check against database
+    const coupons: Record<string, number> = {
+      'WELCOME10': 0.1, // 10% discount
+      'SAVE20': 0.2, // 20% discount
+      'STUDENT15': 0.15, // 15% discount
+    };
+
+    const discountPercent = coupons[couponCode.toUpperCase()];
+    return discountPercent ? Math.floor(amount * discountPercent) : 0;
+  }
+
+  /**
+   * Handle simple course payment success - send notifications
+   */
+  private async handleSimpleCoursePaymentSuccess(
+    payment: PaymentWithRelations,
+  ): Promise<void> {
+    const metadata = payment.metadata as any;
+    
+    console.log(`🎉 Processing successful course payment for ${metadata.studentInfo.email}`);
+    
+    // Update user verification status if new user
+    if (!payment.user.isEmailVerified) {
+      await this.prisma.user.update({
+        where: { id: payment.user.id },
+        data: {
+          isEmailVerified: true,
+          isActive: true,
+        },
+      });
+    }
+
+    // Create course enrollment or booking
+    // This would create actual bookings based on the course structure
+    console.log(`📚 Course ${metadata.courseName} purchased by ${metadata.studentInfo.firstName} ${metadata.studentInfo.lastName}`);
+  }
+
+  /**
+   * Get cache statistics
+   */
+  async getCacheStats(): Promise<PaymentCacheStatsVm> {
+    return this.cacheService.getCacheStats();
+  }
+
+  /**
+   * Clear cache by type
+   */
+  async clearCacheByType(type: 'payment' | 'course' | 'student' | 'teacher'): Promise<void> {
+    await this.cacheService.clearCacheByType(type);
+  }
+}
