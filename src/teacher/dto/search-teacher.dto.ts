@@ -1,15 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { TeacherStatus, EnglishLevel } from '@prisma/client';
-import { IsOptional, IsEnum, IsString, IsDecimal, IsInt, Min, Max } from 'class-validator';
+import { IsOptional, IsEnum, IsString, IsDecimal, IsInt, Min, Max, IsBoolean } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
-export class SearchTeacherDto {
+export class  SearchTeacherDto {
   @ApiPropertyOptional({
-    description: 'Search by teacher name or specialties',
+    description: 'Search by teacher name, specialties, or bio',
     example: 'Business English',
   })
   @IsOptional()
-  @IsString()
+  
   search?: string;
 
   @ApiPropertyOptional({
@@ -55,16 +55,23 @@ export class SearchTeacherDto {
     example: 'Business English,IELTS Preparation',
   })
   @IsOptional()
-  @IsString()
   @Transform(({ value }) => value?.split(',').map((s: string) => s.trim()))
   specialties?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Filter by certifications (comma-separated)',
+    example: 'TESOL,TEFL,CELTA',
+  })
+  @IsOptional()
+  @Transform(({ value }) => value?.split(',').map((s: string) => s.trim()))
+  certifications?: string[];
 
   @ApiPropertyOptional({
     description: 'Filter by languages (comma-separated)',
     example: 'English,Vietnamese',
   })
   @IsOptional()
-  @IsString()
+  
   @Transform(({ value }) => value?.split(',').map((s: string) => s.trim()))
   languages?: string[];
 
@@ -89,6 +96,71 @@ export class SearchTeacherDto {
   @Min(1)
   @Max(5)
   minRating?: number;
+
+  @ApiPropertyOptional({
+    description: 'Filter by teacher timezone',
+    example: 'Asia/Ho_Chi_Minh',
+  })
+  @IsOptional()
+  
+  timezone?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter teachers who accept instant booking',
+    example: true,
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  instantBooking?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Filter by availability on specific day (0=Sunday, 1=Monday, ..., 6=Saturday)',
+    example: 1,
+    minimum: 0,
+    maximum: 6,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  @Max(6)
+  availableOnDay?: number;
+
+  @ApiPropertyOptional({
+    description: 'Filter teachers available at specific time (HH:mm format)',
+    example: '14:00',
+  })
+  @IsOptional()
+  
+  availableAtTime?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter teachers with video introduction',
+    example: true,
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  hasVideoIntro?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Only show live teachers accepting bookings',
+    example: true,
+  })
+  @IsOptional()
+  @Type(() => Boolean)
+  @IsBoolean()
+  onlyLive?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Maximum response time in minutes',
+    example: 60,
+    minimum: 0,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @Min(0)
+  maxResponseTime?: number;
 
   @ApiPropertyOptional({
     description: 'Page number for pagination',
@@ -117,11 +189,11 @@ export class SearchTeacherDto {
   @ApiPropertyOptional({
     description: 'Sort by field',
     example: 'averageRating',
-    enum: ['hourlyRate', 'averageRating', 'totalLessons', 'experience', 'createdAt'],
+    enum: ['hourlyRate', 'averageRating', 'totalLessons', 'experience', 'createdAt', 'responseTime'],
   })
   @IsOptional()
-  @IsString()
-  sortBy?: 'hourlyRate' | 'averageRating' | 'totalLessons' | 'experience' | 'createdAt' = 'averageRating';
+  
+  sortBy?: 'hourlyRate' | 'averageRating' | 'totalLessons' | 'experience' | 'createdAt' | 'responseTime' = 'averageRating';
 
   @ApiPropertyOptional({
     description: 'Sort order',
@@ -129,6 +201,6 @@ export class SearchTeacherDto {
     enum: ['asc', 'desc'],
   })
   @IsOptional()
-  @IsString()
+  
   sortOrder?: 'asc' | 'desc' = 'desc';
 }
