@@ -1,0 +1,767 @@
+{
+  "info": {
+    "name": "Teacher Availability API Collection",
+    "description": "Comprehensive API collection for Teacher Availability management system",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "teacher_id",
+      "value": "clm123abc456",
+      "type": "string"
+    },
+    {
+      "key": "availability_id",
+      "value": "clm789def123",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Teacher Availability Management",
+      "item": [
+        {
+          "name": "Create Teacher Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dayOfWeek\": 1,\n  \"startTime\": \"09:00\",\n  \"endTime\": \"17:00\",\n  \"type\": \"REGULAR\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability"
+              ]
+            },
+            "description": "Create a new availability slot for a teacher"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Teacher Availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability"
+              ]
+            },
+            "description": "Get all availability slots for a teacher"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Teacher Availability (Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability?dayOfWeek=1&type=REGULAR&isActive=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability"
+              ],
+              "query": [
+                {
+                  "key": "dayOfWeek",
+                  "value": "1"
+                },
+                {
+                  "key": "type",
+                  "value": "REGULAR"
+                },
+                {
+                  "key": "isActive",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get filtered availability slots for a teacher"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Teacher Availability",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"10:00\",\n  \"endTime\": \"18:00\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability/{{availability_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability",
+                "{{availability_id}}"
+              ]
+            },
+            "description": "Update an existing availability slot"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Teacher Availability",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability/{{availability_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability",
+                "{{availability_id}}"
+              ]
+            },
+            "description": "Delete an availability slot"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bulk Operations",
+      "item": [
+        {
+          "name": "Bulk Create Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"availabilities\": [\n    {\n      \"dayOfWeek\": 1,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"12:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 1,\n      \"startTime\": \"13:00\",\n      \"endTime\": \"17:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 2,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability",
+                "bulk"
+              ]
+            },
+            "description": "Create multiple availability slots at once"
+          },
+          "response": []
+        },
+        {
+          "name": "Copy Availability Between Days",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromDayOfWeek\": 1,\n  \"toDaysOfWeek\": [2, 3, 4, 5],\n  \"replaceExisting\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability/copy",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability",
+                "copy"
+              ]
+            },
+            "description": "Copy availability schedule from one day to other days"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Conflict & Validation",
+      "item": [
+        {
+          "name": "Check Availability Conflict",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dayOfWeek\": 1,\n  \"startTime\": \"10:00\",\n  \"endTime\": \"12:00\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability/check-conflict",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability",
+                "check-conflict"
+              ]
+            },
+            "description": "Check if a time slot conflicts with existing availability"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Teacher Available at Specific Time",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dateTime\": \"2025-08-25T10:00:00.000Z\",\n  \"duration\": 60\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/check-available",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "check-available"
+              ]
+            },
+            "description": "Check if teacher is available for a specific date and time"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Time Slots & Scheduling",
+      "item": [
+        {
+          "name": "Get Available Time Slots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/time-slots?startDate=2025-08-25&endDate=2025-08-31&duration=60&breakTime=15",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "time-slots"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-08-25"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-08-31"
+                },
+                {
+                  "key": "duration",
+                  "value": "60"
+                },
+                {
+                  "key": "breakTime",
+                  "value": "15"
+                }
+              ]
+            },
+            "description": "Get available booking time slots for a date range"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Available Time Slots (Include Short Notice)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/time-slots?startDate=2025-08-25&endDate=2025-08-31&duration=60&includeShortNotice=true",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "time-slots"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-08-25"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-08-31"
+                },
+                {
+                  "key": "duration",
+                  "value": "60"
+                },
+                {
+                  "key": "includeShortNotice",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Get available time slots including those with short notice"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Weekly Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/weekly-schedule",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "weekly-schedule"
+              ]
+            },
+            "description": "Get teacher's weekly schedule with availability and bookings"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Weekly Schedule (Multi-week)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/weekly-schedule?weekStartDate=2025-08-25&weeksCount=4&includeBookings=true&slotDuration=60",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "weekly-schedule"
+              ],
+              "query": [
+                {
+                  "key": "weekStartDate",
+                  "value": "2025-08-25"
+                },
+                {
+                  "key": "weeksCount",
+                  "value": "4"
+                },
+                {
+                  "key": "includeBookings",
+                  "value": "true"
+                },
+                {
+                  "key": "slotDuration",
+                  "value": "60"
+                }
+              ]
+            },
+            "description": "Get multiple weeks of teacher schedule"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Statistics & Summary",
+      "item": [
+        {
+          "name": "Get Availability Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "stats"
+              ]
+            },
+            "description": "Get teacher's availability statistics and summary"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Availability Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/summary",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "summary"
+              ]
+            },
+            "description": "Get comprehensive availability summary with schedule, stats, and upcoming weeks"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Public Endpoints (Student Access)",
+      "item": [
+        {
+          "name": "Get Available Time Slots (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/public/{{teacher_id}}/time-slots?startDate=2025-08-25&endDate=2025-08-31&duration=60",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "public",
+                "{{teacher_id}}",
+                "time-slots"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-08-25"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-08-31"
+                },
+                {
+                  "key": "duration",
+                  "value": "60"
+                }
+              ]
+            },
+            "description": "Public endpoint for students to view teacher's available booking slots (no auth required)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Weekly Schedule (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/public/{{teacher_id}}/weekly-schedule?weeksCount=2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "public",
+                "{{teacher_id}}",
+                "weekly-schedule"
+              ],
+              "query": [
+                {
+                  "key": "weeksCount",
+                  "value": "2"
+                }
+              ]
+            },
+            "description": "Public endpoint for students to view teacher's weekly availability (no auth required)"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Teacher Available (Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dateTime\": \"2025-08-25T10:00:00.000Z\",\n  \"duration\": 60\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/public/{{teacher_id}}/check-available",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "public",
+                "{{teacher_id}}",
+                "check-available"
+              ]
+            },
+            "description": "Public endpoint for students to check if teacher is available at specific time (no auth required)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Test Scenarios",
+      "item": [
+        {
+          "name": "Setup Weekly Schedule (Monday to Friday)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"availabilities\": [\n    {\n      \"dayOfWeek\": 1,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"12:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 1,\n      \"startTime\": \"14:00\",\n      \"endTime\": \"17:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 2,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 3,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 4,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 5,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"15:00\",\n      \"type\": \"REGULAR\",\n      \"isActive\": true\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability/bulk",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability",
+                "bulk"
+              ]
+            },
+            "description": "Setup a complete weekly schedule for a teacher (Monday to Friday with lunch break on Monday)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Blackout Period (Holiday)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dayOfWeek\": 1,\n  \"startTime\": \"00:00\",\n  \"endTime\": \"23:59\",\n  \"type\": \"BLACKOUT\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability"
+              ]
+            },
+            "description": "Create a blackout period (unavailable) for a specific day"
+          },
+          "response": []
+        },
+        {
+          "name": "Create One-time Availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dayOfWeek\": 6,\n  \"startTime\": \"10:00\",\n  \"endTime\": \"14:00\",\n  \"type\": \"ONE_TIME\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/availability",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "availability"
+              ]
+            },
+            "description": "Create a one-time availability slot (e.g., weekend special session)"
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Check Multiple Time Slots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teacher-availability/{{teacher_id}}/time-slots?startDate=2025-08-25&endDate=2025-09-01&duration=60",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "teacher-availability",
+                "{{teacher_id}}",
+                "time-slots"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-08-25"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-09-01"
+                },
+                {
+                  "key": "duration",
+                  "value": "60"
+                }
+              ]
+            },
+            "description": "Get available slots for a full week to see the complete schedule"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set current date for testing",
+          "const now = new Date();",
+          "const today = now.toISOString().split('T')[0];",
+          "const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];",
+          "",
+          "pm.collectionVariables.set('today', today);",
+          "pm.collectionVariables.set('next_week', nextWeek);",
+          "",
+          "// Generate test teacher ID if not set",
+          "if (!pm.collectionVariables.get('teacher_id')) {",
+          "  pm.collectionVariables.set('teacher_id', 'test_teacher_' + Math.random().toString(36).substr(2, 9));",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Basic response validation",
+          "pm.test('Status code is successful', function () {",
+          "    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+          "});",
+          "",
+          "// Extract and store IDs from response for chaining requests",
+          "if (pm.response.json && pm.response.json()) {",
+          "    const responseJson = pm.response.json();",
+          "    ",
+          "    // Store availability ID if present",
+          "    if (responseJson.id && pm.request.url.toString().includes('availability')) {",
+          "        pm.collectionVariables.set('availability_id', responseJson.id);",
+          "    }",
+          "    ",
+          "    // Store teacher ID if present",
+          "    if (responseJson.teacherId) {",
+          "        pm.collectionVariables.set('teacher_id', responseJson.teacherId);",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,899 @@
+{
+	"info": {
+		"_postman_id": "antoree-lesson-collection",
+		"name": "Antoree Lesson Management API Collection",
+		"description": "Complete API collection for Antoree Lesson Management - Create, manage and track lessons for courses",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "antoree-lesson-api"
+	},
+	"item": [
+		{
+			"name": "Lesson Creation",
+			"item": [
+				{
+					"name": "Create New Lesson",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has lesson data\", function () {",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('id');",
+									"    pm.expect(responseJson).to.have.property('title');",
+									"    pm.expect(responseJson).to.have.property('courseId');",
+									"    pm.expect(responseJson).to.have.property('teacherId');",
+									"    pm.expect(responseJson).to.have.property('scheduledAt');",
+									"    ",
+									"    // Store lesson ID for subsequent requests",
+									"    pm.collectionVariables.set('lessonId', responseJson.id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"title\": \"Introduction to Business English Grammar\",\n  \"description\": \"Learn fundamental grammar structures used in business communication\",\n  \"scheduledAt\": \"2024-02-20T14:00:00Z\",\n  \"duration\": 60,\n  \"meetingUrl\": \"https://zoom.us/j/123456789\",\n  \"learningObjectives\": [\n    \"Master present tense in business contexts\",\n    \"Use modal verbs for polite requests\",\n    \"Practice question formation\"\n  ],\n  \"materials\": [\n    \"Business Grammar Handbook Chapter 3\",\n    \"Grammar exercise worksheet\",\n    \"Audio recordings for pronunciation\"\n  ],\n  \"homework\": \"Complete exercises 1-5 in the workbook and prepare 5 business-related sentences using modal verbs\",\n  \"notes\": \"Focus on practical applications rather than theory. Include real business scenarios.\",\n  \"sequenceNumber\": 1,\n  \"isAvailableForBooking\": true,\n  \"maxStudents\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							]
+						},
+						"description": "Create a new lesson for a course. Teacher must own the course."
+					}
+				},
+				{
+					"name": "Create Lesson from Template",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"templateLessonId\": \"{{templateLessonId}}\",\n  \"scheduledAt\": \"2024-02-22T14:00:00Z\",\n  \"title\": \"Advanced Business English Grammar\",\n  \"duration\": 90,\n  \"additionalNotes\": \"This is a more advanced version focusing on complex business scenarios\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/from-template",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"from-template"
+							]
+						},
+						"description": "Create a new lesson using an existing lesson as a template"
+					}
+				},
+				{
+					"name": "Bulk Create Lessons",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"lessonTemplate\": {\n    \"title\": \"Business English Series\",\n    \"description\": \"Weekly business English lessons\",\n    \"duration\": 60,\n    \"learningObjectives\": [\n      \"Improve business vocabulary\",\n      \"Practice professional communication\"\n    ],\n    \"materials\": [\n      \"Business English textbook\",\n      \"Weekly vocabulary list\"\n    ],\n    \"homework\": \"Review vocabulary and practice exercises\",\n    \"notes\": \"Regular weekly lesson format\",\n    \"isAvailableForBooking\": true,\n    \"maxStudents\": 4\n  },\n  \"scheduledTimes\": [\n    \"2024-02-26T14:00:00Z\",\n    \"2024-03-05T14:00:00Z\",\n    \"2024-03-12T14:00:00Z\",\n    \"2024-03-19T14:00:00Z\"\n  ],\n  \"autoIncrementTitles\": true,\n  \"startingSequence\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/bulk",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"bulk"
+							]
+						},
+						"description": "Create multiple lessons at once with different scheduled times"
+					}
+				}
+			],
+			"description": "Lesson creation operations for teachers"
+		},
+		{
+			"name": "Lesson Management",
+			"item": [
+				{
+					"name": "Get All Lessons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons?page=1&limit=20&sortBy=scheduledAt&sortOrder=asc&availableForBooking=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "sortBy",
+									"value": "scheduledAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "asc"
+								},
+								{
+									"key": "availableForBooking",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Get all lessons with filtering and pagination"
+					}
+				},
+				{
+					"name": "Get Lesson by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Get detailed information about a specific lesson"
+					}
+				},
+				{
+					"name": "Search Lessons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons?search=business&courseId={{courseId}}&status=SCHEDULED&startDate=2024-02-01&endDate=2024-03-31&minDuration=45&maxDuration=90",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "business"
+								},
+								{
+									"key": "courseId",
+									"value": "{{courseId}}"
+								},
+								{
+									"key": "status",
+									"value": "SCHEDULED"
+								},
+								{
+									"key": "startDate",
+									"value": "2024-02-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-03-31"
+								},
+								{
+									"key": "minDuration",
+									"value": "45"
+								},
+								{
+									"key": "maxDuration",
+									"value": "90"
+								}
+							]
+						},
+						"description": "Search lessons with various filters"
+					}
+				},
+				{
+					"name": "Get Lessons by Course",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/course/{{courseId}}?page=1&limit=50&scheduledOnly=true&sortBy=sequenceNumber&sortOrder=asc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"course",
+								"{{courseId}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "scheduledOnly",
+									"value": "true"
+								},
+								{
+									"key": "sortBy",
+									"value": "sequenceNumber"
+								},
+								{
+									"key": "sortOrder",
+									"value": "asc"
+								}
+							]
+						},
+						"description": "Get all lessons for a specific course"
+					}
+				},
+				{
+					"name": "Get Course Lesson Progress",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/course/{{courseId}}/progress",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"course",
+								"{{courseId}}",
+								"progress"
+							]
+						},
+						"description": "Get lesson progress and statistics for a course"
+					}
+				}
+			],
+			"description": "General lesson management and retrieval"
+		},
+		{
+			"name": "Teacher Lesson Management",
+			"item": [
+				{
+					"name": "Get My Lessons",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/teacher/me/lessons?page=1&limit=20&upcomingOnly=true&includeStats=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"teacher",
+								"me",
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "upcomingOnly",
+									"value": "true"
+								},
+								{
+									"key": "includeStats",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Get current teacher's lessons"
+					}
+				},
+				{
+					"name": "Get Teacher Lessons by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/teacher/{{teacherId}}?page=1&limit=20&status=SCHEDULED&fromDate=2024-02-01",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"teacher",
+								"{{teacherId}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "status",
+									"value": "SCHEDULED"
+								},
+								{
+									"key": "fromDate",
+									"value": "2024-02-01"
+								}
+							]
+						},
+						"description": "Get lessons for a specific teacher"
+					}
+				},
+				{
+					"name": "Get My Lesson Statistics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/teacher/me/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"teacher",
+								"me",
+								"stats"
+							]
+						},
+						"description": "Get comprehensive lesson statistics for current teacher"
+					}
+				},
+				{
+					"name": "Update Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Advanced Business English Grammar - Updated\",\n  \"description\": \"Updated lesson focusing on advanced grammar structures with practical business applications\",\n  \"duration\": 75,\n  \"learningObjectives\": [\n    \"Master complex sentence structures\",\n    \"Use advanced modal verbs\",\n    \"Practice conditional statements in business contexts\",\n    \"Develop formal writing skills\"\n  ],\n  \"materials\": [\n    \"Advanced Business Grammar Handbook Chapter 5\",\n    \"Complex grammar exercise worksheet\",\n    \"Business case study documents\",\n    \"Grammar reference card\"\n  ],\n  \"homework\": \"Complete advanced exercises 1-8 and write a formal business proposal using conditional statements\",\n  \"notes\": \"Student has shown good progress. Ready for more challenging material. Focus on writing skills.\",\n  \"isAvailableForBooking\": true,\n  \"maxStudents\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Update lesson information"
+					}
+				},
+				{
+					"name": "Update Lesson Notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"notes\": \"Excellent lesson today! Student demonstrated significant improvement in grammar understanding. Showed particular strength in using modal verbs for polite requests. Still needs work on complex sentence structures but overall progress is very good.\",\n  \"homework\": \"Review today's lesson notes and complete exercises 6-10 in the workbook. Practice writing 3 formal email requests using modal verbs we studied today.\",\n  \"studentFeedback\": \"Great participation today! Your pronunciation has improved significantly. Keep practicing the modal verb exercises.\",\n  \"topicsCovered\": [\n    \"Modal verbs for requests\",\n    \"Formal vs informal language\",\n    \"Email structure and tone\",\n    \"Common business expressions\"\n  ],\n  \"strengths\": [\n    \"Quick understanding of modal verb concepts\",\n    \"Good pronunciation improvement\",\n    \"Active participation in role-play exercises\",\n    \"Excellent questions about practical applications\"\n  ],\n  \"improvementAreas\": [\n    \"Complex sentence formation\",\n    \"Preposition usage\",\n    \"Speaking fluency under time pressure\",\n    \"Formal writing structure\"\n  ],\n  \"nextLessonFocus\": \"Continue with advanced modal verbs and introduce conditional statements for business scenarios\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}/notes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}",
+								"notes"
+							]
+						},
+						"description": "Update lesson notes and teaching observations (can be done during or after lesson)"
+					}
+				},
+				{
+					"name": "Reschedule Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newScheduledAt\": \"2024-02-21T15:00:00Z\",\n  \"reason\": \"Student requested time change due to work schedule conflict\",\n  \"notifyStudent\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}/reschedule",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}",
+								"reschedule"
+							]
+						},
+						"description": "Change the scheduled time for a lesson"
+					}
+				},
+				{
+					"name": "Delete Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Delete a lesson (cannot delete lessons with confirmed bookings)"
+					}
+				}
+			],
+			"description": "Teacher-specific lesson management operations"
+		},
+		{
+			"name": "Advanced Lesson Features",
+			"item": [
+				{
+					"name": "Get Upcoming Lessons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons?fromDate={{currentDate}}&status=SCHEDULED&availableForBooking=true&sortBy=scheduledAt&sortOrder=asc&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "fromDate",
+									"value": "{{currentDate}}"
+								},
+								{
+									"key": "status",
+									"value": "SCHEDULED"
+								},
+								{
+									"key": "availableForBooking",
+									"value": "true"
+								},
+								{
+									"key": "sortBy",
+									"value": "scheduledAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "asc"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get upcoming lessons available for booking"
+					}
+				},
+				{
+					"name": "Get Lessons by Learning Objectives",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons?learningObjectives=speaking&learningObjectives=presentation skills&availableForBooking=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "learningObjectives",
+									"value": "speaking"
+								},
+								{
+									"key": "learningObjectives",
+									"value": "presentation skills"
+								},
+								{
+									"key": "availableForBooking",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Find lessons by specific learning objectives"
+					}
+				},
+				{
+					"name": "Get Lessons with Homework",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons?hasHomework=true&teacherId={{teacherId}}&status=COMPLETED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "hasHomework",
+									"value": "true"
+								},
+								{
+									"key": "teacherId",
+									"value": "{{teacherId}}"
+								},
+								{
+									"key": "status",
+									"value": "COMPLETED"
+								}
+							]
+						},
+						"description": "Get lessons that have homework assignments"
+					}
+				},
+				{
+					"name": "Get Lessons with Notes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{teacherToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons?hasNotes=true&teacherId={{currentTeacherId}}&status=COMPLETED&sortBy=scheduledAt&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "hasNotes",
+									"value": "true"
+								},
+								{
+									"key": "teacherId",
+									"value": "{{currentTeacherId}}"
+								},
+								{
+									"key": "status",
+									"value": "COMPLETED"
+								},
+								{
+									"key": "sortBy",
+									"value": "scheduledAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get lessons with teacher notes (for review and tracking)"
+					}
+				},
+				{
+					"name": "Get Lessons by Sequence Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lessons?courseId={{courseId}}&minSequence=1&maxSequence=5&sortBy=sequenceNumber&sortOrder=asc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "courseId",
+									"value": "{{courseId}}"
+								},
+								{
+									"key": "minSequence",
+									"value": "1"
+								},
+								{
+									"key": "maxSequence",
+									"value": "5"
+								},
+								{
+									"key": "sortBy",
+									"value": "sequenceNumber"
+								},
+								{
+									"key": "sortOrder",
+									"value": "asc"
+								}
+							]
+						},
+						"description": "Get lessons within a specific sequence range for a course"
+					}
+				}
+			],
+			"description": "Advanced lesson search and filtering features"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set current date for upcoming lesson queries",
+					"pm.collectionVariables.set('currentDate', new Date().toISOString());"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string",
+			"description": "Base URL for the API"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token for general users"
+		},
+		{
+			"key": "teacherToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token for teacher"
+		},
+		{
+			"key": "studentToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token for student"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token for admin"
+		},
+		{
+			"key": "teacherId",
+			"value": "",
+			"type": "string",
+			"description": "Teacher ID for testing"
+		},
+		{
+			"key": "currentTeacherId",
+			"value": "",
+			"type": "string",
+			"description": "Current authenticated teacher ID"
+		},
+		{
+			"key": "studentId",
+			"value": "",
+			"type": "string",
+			"description": "Student ID for testing"
+		},
+		{
+			"key": "courseId",
+			"value": "",
+			"type": "string",
+			"description": "Course ID for lesson creation"
+		},
+		{
+			"key": "lessonId",
+			"value": "",
+			"type": "string",
+			"description": "Lesson ID for testing operations"
+		},
+		{
+			"key": "templateLessonId",
+			"value": "",
+			"type": "string",
+			"description": "Template lesson ID for creating from template"
+		},
+		{
+			"key": "currentDate",
+			"value": "",
+			"type": "string",
+			"description": "Current date in ISO format (auto-generated)"
+		}
+	]
+}

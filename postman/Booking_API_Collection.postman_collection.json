@@ -1,0 +1,1567 @@
+{
+	"info": {
+		"_postman_id": "antoree-booking-collection",
+		"name": "Antoree Booking API Collection",
+		"description": "Complete API collection for Antoree Booking System - Bookings, Trial Lessons, and Booking Flow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "antoree-booking-api"
+	},
+	"item": [
+		{
+			"name": "Basic Booking Operations",
+			"item": [
+				{
+					"name": "Create Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"teacherId\": \"{{teacherId}}\",\n  \"courseId\": \"{{courseId}}\",\n  \"scheduledAt\": \"2024-02-15T10:00:00Z\",\n  \"duration\": 60,\n  \"notes\": \"I would like to focus on business English conversation\",\n  \"isTrialLesson\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							]
+						},
+						"description": "Create a new booking (Student only)"
+					}
+				},
+				{
+					"name": "Book Trial Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"teacherId\": \"{{teacherId}}\",\n  \"scheduledAt\": \"2024-02-15T10:00:00Z\",\n  \"duration\": 30,\n  \"notes\": \"I want to improve my pronunciation and speaking confidence\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial"
+							]
+						},
+						"description": "Book a trial lesson (Student only)"
+					}
+				},
+				{
+					"name": "Book Course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"preferredStartDate\": \"2024-02-15T10:00:00Z\",\n  \"notes\": \"I need to prepare for IELTS exam in 3 months\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/course",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"course"
+							]
+						},
+						"description": "Book a course (Student only)"
+					}
+				},
+				{
+					"name": "Get All Bookings (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings"
+							]
+						},
+						"description": "Get all bookings (Admin only)"
+					}
+				},
+				{
+					"name": "Search Bookings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/search?status=CONFIRMED&page=1&limit=10&sortBy=scheduledAt&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"search"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "CONFIRMED"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "sortBy",
+									"value": "scheduledAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Search bookings with filters (Admin/Teacher)"
+					}
+				},
+				{
+					"name": "Get My Bookings",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/my",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"my"
+							]
+						},
+						"description": "Get current user bookings"
+					}
+				},
+				{
+					"name": "Get Booking Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"stats"
+							]
+						},
+						"description": "Get booking statistics"
+					}
+				},
+				{
+					"name": "Get Trial Lessons Awaiting Feedback",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/awaiting-feedback",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"awaiting-feedback"
+							]
+						},
+						"description": "Get completed trial lessons awaiting feedback (Student only)"
+					}
+				},
+				{
+					"name": "Get Teacher Availability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/availability/{{teacherId}}?daysAhead=7&duration=60",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"availability",
+								"{{teacherId}}"
+							],
+							"query": [
+								{
+									"key": "daysAhead",
+									"value": "7"
+								},
+								{
+									"key": "duration",
+									"value": "60"
+								}
+							]
+						},
+						"description": "Get teacher availability (Public)"
+					}
+				},
+				{
+					"name": "Get Bookings by Student",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/student/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"student",
+								"{{studentId}}"
+							]
+						},
+						"description": "Get bookings by student ID (Admin/Teacher)"
+					}
+				},
+				{
+					"name": "Get Bookings by Teacher",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/teacher/{{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"teacher",
+								"{{teacherId}}"
+							]
+						},
+						"description": "Get bookings by teacher ID (Admin/Student)"
+					}
+				},
+				{
+					"name": "Get Booking by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(200)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.id) {",
+									"        pm.environment.set('bookingId', response.data.id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"{{bookingId}}"
+							]
+						},
+						"description": "Get booking by ID"
+					}
+				}
+			],
+			"description": "Basic booking CRUD operations"
+		},
+		{
+			"name": "Booking Management",
+			"item": [
+				{
+					"name": "Update Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"notes\": \"Updated notes: Please focus on IELTS speaking practice\",\n  \"status\": \"CONFIRMED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"{{bookingId}}"
+							]
+						},
+						"description": "Update booking details"
+					}
+				},
+				{
+					"name": "Reschedule Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newScheduledAt\": \"2024-02-16T14:00:00Z\",\n  \"reason\": \"Schedule conflict, need to move to later time\",\n  \"requestedBy\": \"student\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingId}}/reschedule",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"{{bookingId}}",
+								"reschedule"
+							]
+						},
+						"description": "Reschedule booking to a new time"
+					}
+				},
+				{
+					"name": "Confirm Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingId}}/confirm",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"{{bookingId}}",
+								"confirm"
+							]
+						},
+						"description": "Confirm booking (Teacher/Admin only)"
+					}
+				},
+				{
+					"name": "Cancel Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reason\": \"Unexpected emergency, cannot attend\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingId}}/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"{{bookingId}}",
+								"cancel"
+							]
+						},
+						"description": "Cancel booking with reason"
+					}
+				},
+				{
+					"name": "Complete Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingId}}/complete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"{{bookingId}}",
+								"complete"
+							]
+						},
+						"description": "Mark booking as completed (Teacher/Admin only)"
+					}
+				},
+				{
+					"name": "Delete Booking (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/{{bookingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"{{bookingId}}"
+							]
+						},
+						"description": "Delete booking (Admin only)"
+					}
+				}
+			],
+			"description": "Booking management operations"
+		},
+		{
+			"name": "Booking Flow - Step by Step",
+			"item": [
+				{
+					"name": "Step 1: Get Available Time Slots",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/flow/available-slots/{{teacherId}}?startDate=2024-02-15&endDate=2024-02-22&duration=30&timezone=Asia/Ho_Chi_Minh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"flow",
+								"available-slots",
+								"{{teacherId}}"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-02-15"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-02-22"
+								},
+								{
+									"key": "duration",
+									"value": "30"
+								},
+								{
+									"key": "timezone",
+									"value": "Asia/Ho_Chi_Minh"
+								}
+							]
+						},
+						"description": "Get available time slots for booking (Public)"
+					}
+				},
+				{
+					"name": "Step 2: Create Booking with Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.bookingId) {",
+									"        pm.environment.set('bookingId', response.data.bookingId);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"timeSlot\": {\n    \"teacherId\": \"{{teacherId}}\",\n    \"scheduledAt\": \"2024-02-15T10:00:00Z\",\n    \"duration\": 30,\n    \"lessonType\": \"trial\"\n  },\n  \"contactInfo\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"phone\": \"+84901234567\",\n    \"email\": \"john.doe.student@gmail.com\",\n    \"timezone\": \"Asia/Ho_Chi_Minh\"\n  },\n  \"learningGoals\": {\n    \"currentLevel\": \"INTERMEDIATE\",\n    \"targetLevel\": \"UPPER_INTERMEDIATE\",\n    \"learningObjectives\": [\"Improve speaking fluency\", \"Business English\", \"IELTS preparation\"],\n    \"focusAreas\": [\"Pronunciation\", \"Grammar\", \"Vocabulary\"],\n    \"previousExperience\": \"Self-taught for 2 years, took some online courses\",\n    \"timeline\": \"3-6 months\",\n    \"preferredFrequency\": 2,\n    \"additionalNotes\": \"I need to prepare for a job interview in English next month\"\n  },\n  \"isTrialLesson\": true,\n  \"messageToTeacher\": \"Looking forward to our lesson! I am particularly interested in improving my speaking skills.\",\n  \"howFoundTeacher\": \"Search results\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/flow/create-with-details",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"flow",
+								"create-with-details"
+							]
+						},
+						"description": "Create comprehensive booking request (Student only)"
+					}
+				},
+				{
+					"name": "Step 3: Confirm Booking",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bookingId\": \"{{bookingId}}\",\n  \"confirmationNotes\": \"Confirmed payment and ready for the lesson\",\n  \"acceptTerms\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/flow/confirm/{{bookingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"flow",
+								"confirm",
+								"{{bookingId}}"
+							]
+						},
+						"description": "Final confirmation of booking (Student only)"
+					}
+				},
+				{
+					"name": "Get Booking Flow Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/flow/status/{{bookingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"flow",
+								"status",
+								"{{bookingId}}"
+							]
+						},
+						"description": "Get current booking flow status"
+					}
+				}
+			],
+			"description": "Step-by-step booking flow process"
+		},
+		{
+			"name": "Teacher Notifications & Actions",
+			"item": [
+				{
+					"name": "Get Teacher Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/teacher/notifications?status=unread&limit=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"teacher",
+								"notifications"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "unread"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get teacher booking notifications (Teacher only)"
+					}
+				},
+				{
+					"name": "Get Pending Booking Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/teacher/pending-requests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"teacher",
+								"pending-requests"
+							]
+						},
+						"description": "Get pending booking requests (Teacher only)"
+					}
+				},
+				{
+					"name": "Teacher Respond to Booking Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"ACCEPT\",\n  \"responseMessage\": \"I look forward to our lesson! Please prepare some topics you would like to discuss.\",\n  \"alternativeSlots\": [],\n  \"declineReason\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/teacher/respond/{{bookingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"teacher",
+								"respond",
+								"{{bookingId}}"
+							]
+						},
+						"description": "Teacher responds to booking request (Teacher only)"
+					}
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/teacher/notifications/{{notificationId}}/read",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"teacher",
+								"notifications",
+								"{{notificationId}}",
+								"read"
+							]
+						},
+						"description": "Mark notification as read (Teacher only)"
+					}
+				},
+				{
+					"name": "Get Teacher Booking Dashboard",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/teacher/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"teacher",
+								"dashboard"
+							]
+						},
+						"description": "Get comprehensive teacher booking dashboard (Teacher only)"
+					}
+				}
+			],
+			"description": "Teacher notification management and booking responses"
+		},
+		{
+			"name": "Student Dashboard & Requests",
+			"item": [
+				{
+					"name": "Get Student Booking Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/student/my-requests?status=PENDING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"student",
+								"my-requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						},
+						"description": "Get student booking requests (Student only)"
+					}
+				},
+				{
+					"name": "Get Student Booking Dashboard",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/student/dashboard",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"student",
+								"dashboard"
+							]
+						},
+						"description": "Get comprehensive student booking dashboard (Student only)"
+					}
+				}
+			],
+			"description": "Student booking dashboard and request management"
+		},
+		{
+			"name": "Trial Lesson Flow",
+			"item": [
+				{
+					"name": "Step 1: Request Trial Lesson",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.id) {",
+									"        pm.environment.set('trialBookingId', response.data.id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"teacherId\": \"{{teacherId}}\",\n  \"preferredDateTime\": \"2024-02-15T10:00:00Z\",\n  \"duration\": 30,\n  \"studentTimezone\": \"Asia/Ho_Chi_Minh\",\n  \"learningGoals\": \"I want to improve my speaking confidence and pronunciation\",\n  \"currentLevel\": \"INTERMEDIATE\",\n  \"focusAreas\": [\"Speaking\", \"Pronunciation\", \"Conversation\"],\n  \"additionalInfo\": \"I have been self-studying for 2 years but need practice with a native speaker\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/request",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"request"
+							]
+						},
+						"description": "Student requests trial lesson (Student only)"
+					}
+				},
+				{
+					"name": "Step 2: Teacher Respond to Trial",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"action\": \"ACCEPT\",\n  \"confirmedDateTime\": \"2024-02-15T10:00:00Z\",\n  \"meetingPreparation\": \"Please prepare a brief introduction about yourself and what you'd like to achieve with English\",\n  \"teacherNotes\": \"Looking forward to meeting you! I'll focus on assessing your current level and discussing your goals.\",\n  \"suggestedPreparation\": [\"Think about your learning goals\", \"Prepare a 2-minute self-introduction\", \"List areas you want to improve\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/respond/{{trialBookingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"respond",
+								"{{trialBookingId}}"
+							]
+						},
+						"description": "Teacher responds to trial lesson request (Teacher only)"
+					}
+				},
+				{
+					"name": "Step 3: Generate Meeting Link",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"platform\": \"zoom\",\n  \"meetingSettings\": {\n    \"enableWaitingRoom\": true,\n    \"enableRecording\": false,\n    \"allowParticipantsToJoinEarly\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/generate-meeting/{{trialBookingId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"generate-meeting",
+								"{{trialBookingId}}"
+							]
+						},
+						"description": "Generate meeting link for trial lesson"
+					}
+				},
+				{
+					"name": "Step 4: Join Trial Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bookingId\": \"{{trialBookingId}}\",\n  \"deviceInfo\": {\n    \"platform\": \"web\",\n    \"browser\": \"Chrome\",\n    \"hasCamera\": true,\n    \"hasMicrophone\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/join",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"join"
+							]
+						},
+						"description": "Join trial lesson video call"
+					}
+				},
+				{
+					"name": "Step 5: Complete Trial Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bookingId\": \"{{trialBookingId}}\",\n  \"assessmentResults\": {\n    \"currentLevel\": \"INTERMEDIATE\",\n    \"strengths\": [\"Good vocabulary\", \"Clear pronunciation\"],\n    \"areasForImprovement\": [\"Grammar accuracy\", \"Fluency\"],\n    \"recommendedFocus\": [\"Regular speaking practice\", \"Grammar review\"]\n  },\n  \"teacherFeedback\": \"Great trial lesson! The student shows good potential and motivation to learn.\",\n  \"studentFeedback\": \"Very helpful session, I learned a lot about my current level\",\n  \"recommendedNextSteps\": \"Book regular lessons focusing on conversation and grammar\",\n  \"lessonSummary\": \"Conducted level assessment, discussed learning goals, practiced conversation\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/complete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"complete"
+							]
+						},
+						"description": "Complete trial lesson with feedback (Teacher/Admin only)"
+					}
+				},
+				{
+					"name": "Get Trial Lesson Notifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/notifications?limit=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"notifications"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get trial lesson notifications"
+					}
+				},
+				{
+					"name": "Get Trial Lesson Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/{{trialBookingId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"{{trialBookingId}}",
+								"status"
+							]
+						},
+						"description": "Get trial lesson status and details"
+					}
+				},
+				{
+					"name": "Get Student Trial Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/my-requests?status=PENDING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"my-requests"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "PENDING"
+								}
+							]
+						},
+						"description": "Get student trial lesson requests (Student only)"
+					}
+				},
+				{
+					"name": "Get Teacher Pending Trial Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/trial/teacher/pending",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"trial",
+								"teacher",
+								"pending"
+							]
+						},
+						"description": "Get pending trial requests for teacher (Teacher only)"
+					}
+				}
+			],
+			"description": "Complete trial lesson flow from request to completion"
+		},
+		{
+			"name": "Lesson Packages",
+			"item": [
+				{
+					"name": "Get Student Lesson Packages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/packages/student?status=active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"packages",
+								"student"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active"
+								}
+							]
+						},
+						"description": "Get student lesson packages (Student only)"
+					}
+				},
+				{
+					"name": "Schedule Lesson from Package",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scheduledAt\": \"2024-02-15T14:00:00Z\",\n  \"duration\": 60,\n  \"lessonTopics\": [\"Business Presentations\", \"Meeting Vocabulary\"],\n  \"notes\": \"Focus on presentation skills for upcoming work presentation\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bookings/packages/{{packageId}}/schedule",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"packages",
+								"{{packageId}}",
+								"schedule"
+							]
+						},
+						"description": "Schedule lesson from package (Student only)"
+					}
+				},
+				{
+					"name": "Get Package Usage Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/bookings/packages/{{packageId}}/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bookings",
+								"packages",
+								"{{packageId}}",
+								"stats"
+							]
+						},
+						"description": "Get package usage statistics (Student only)"
+					}
+				}
+			],
+			"description": "Lesson package management (placeholder endpoints)"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string",
+			"description": "Base URL for the API"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "Current user ID"
+		},
+		{
+			"key": "teacherId",
+			"value": "",
+			"type": "string",
+			"description": "Teacher ID for testing"
+		},
+		{
+			"key": "studentId",
+			"value": "",
+			"type": "string",
+			"description": "Student ID for testing"
+		},
+		{
+			"key": "bookingId",
+			"value": "",
+			"type": "string",
+			"description": "Booking ID for testing"
+		},
+		{
+			"key": "trialBookingId",
+			"value": "",
+			"type": "string",
+			"description": "Trial booking ID for testing"
+		},
+		{
+			"key": "courseId",
+			"value": "",
+			"type": "string",
+			"description": "Course ID for testing"
+		},
+		{
+			"key": "packageId",
+			"value": "",
+			"type": "string",
+			"description": "Package ID for testing"
+		},
+		{
+			"key": "notificationId",
+			"value": "",
+			"type": "string",
+			"description": "Notification ID for testing"
+		}
+	]
+}

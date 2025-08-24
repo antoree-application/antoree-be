@@ -1,0 +1,791 @@
+{
+	"info": {
+		"_postman_id": "antoree-enrollment-collection",
+		"name": "Antoree Enrollment API Collection",
+		"description": "Course enrollment management endpoints for Antoree platform - Student enrollments, teacher course management, and enrollment analytics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "antoree-enrollment-api"
+	},
+	"item": [
+		{
+			"name": "Student Enrollments",
+			"item": [
+				{
+					"name": "Get Student Enrollments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/student/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"student",
+								"{{studentId}}"
+							]
+						},
+						"description": "Get all enrollments for a specific student. Students can only see their own enrollments, while admins and teachers can view any student's enrollments."
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/enrollments/student/{{studentId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"enrollments",
+										"student",
+										"{{studentId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Student enrollments retrieved successfully\",\n  \"data\": [\n    {\n      \"id\": \"cm3enroll123def456\",\n      \"studentId\": \"cm3student123def456\",\n      \"courseId\": \"cm3course123def456\",\n      \"paymentId\": \"cm3payment123def456\",\n      \"status\": \"ACTIVE\",\n      \"enrolledAt\": \"2025-01-15T10:30:00.000Z\",\n      \"expiresAt\": null,\n      \"completedLessons\": 3,\n      \"progress\": \"25.50\",\n      \"lastAccessedAt\": \"2025-01-20T14:22:00.000Z\",\n      \"completedAt\": null,\n      \"certificateUrl\": null,\n      \"enrollmentNotes\": \"Enrolled through payment cm3payment123def456\",\n      \"course\": {\n        \"id\": \"cm3course123def456\",\n        \"title\": \"Advanced JavaScript Programming\",\n        \"description\": \"Master advanced JavaScript concepts\",\n        \"price\": 99.99,\n        \"totalLessons\": 12,\n        \"teacher\": {\n          \"id\": \"cm3teacher123def456\",\n          \"user\": {\n            \"firstName\": \"John\",\n            \"lastName\": \"Doe\",\n            \"email\": \"teacher@example.com\"\n          }\n        }\n      },\n      \"payment\": {\n        \"id\": \"cm3payment123def456\",\n        \"amount\": 99.99,\n        \"status\": \"COMPLETED\",\n        \"method\": \"VNPAY\",\n        \"createdAt\": \"2025-01-15T10:25:00.000Z\"\n      }\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Student Enrollments by Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/student/{{studentId}}?status=ACTIVE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"student",
+								"{{studentId}}"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE",
+									"description": "Filter by enrollment status: ACTIVE, COMPLETED, CANCELLED, EXPIRED, SUSPENDED"
+								}
+							]
+						},
+						"description": "Get student enrollments filtered by status. Available statuses: ACTIVE, COMPLETED, CANCELLED, EXPIRED, SUSPENDED"
+					}
+				}
+			]
+		},
+		{
+			"name": "Teacher Enrollments",
+			"item": [
+				{
+					"name": "Get Teacher Course Enrollments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/teacher/{{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"teacher",
+								"{{teacherId}}"
+							]
+						},
+						"description": "Get all enrollments for courses taught by a specific teacher. Teachers can only see their own course enrollments, while admins can view any teacher's enrollments."
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/enrollments/teacher/{{teacherId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"enrollments",
+										"teacher",
+										"{{teacherId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Teacher course enrollments retrieved successfully\",\n  \"data\": [\n    {\n      \"id\": \"cm3enroll123def456\",\n      \"studentId\": \"cm3student123def456\",\n      \"courseId\": \"cm3course123def456\",\n      \"status\": \"ACTIVE\",\n      \"enrolledAt\": \"2025-01-15T10:30:00.000Z\",\n      \"completedLessons\": 3,\n      \"progress\": \"25.50\",\n      \"student\": {\n        \"id\": \"cm3student123def456\",\n        \"user\": {\n          \"firstName\": \"Jane\",\n          \"lastName\": \"Smith\",\n          \"email\": \"student@example.com\"\n        }\n      },\n      \"course\": {\n        \"id\": \"cm3course123def456\",\n        \"title\": \"Advanced JavaScript Programming\",\n        \"price\": 99.99,\n        \"totalLessons\": 12\n      },\n      \"payment\": {\n        \"id\": \"cm3payment123def456\",\n        \"amount\": 99.99,\n        \"status\": \"COMPLETED\"\n      }\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Teacher Course Enrollments with Filters",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/teacher/{{teacherId}}?courseId={{courseId}}&status=ACTIVE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"teacher",
+								"{{teacherId}}"
+							],
+							"query": [
+								{
+									"key": "courseId",
+									"value": "{{courseId}}",
+									"description": "Filter by specific course ID"
+								},
+								{
+									"key": "status",
+									"value": "ACTIVE",
+									"description": "Filter by enrollment status: ACTIVE, COMPLETED, CANCELLED, EXPIRED, SUSPENDED"
+								}
+							]
+						},
+						"description": "Get teacher course enrollments with optional filters for specific course and enrollment status"
+					}
+				}
+			]
+		},
+		{
+			"name": "Enrollment Details",
+			"item": [
+				{
+					"name": "Get Enrollment by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"{{enrollmentId}}"
+							]
+						},
+						"description": "Get detailed information about a specific enrollment by its ID"
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"enrollments",
+										"{{enrollmentId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Enrollment retrieved successfully\",\n  \"data\": {\n    \"id\": \"cm3enroll123def456\",\n    \"studentId\": \"cm3student123def456\",\n    \"courseId\": \"cm3course123def456\",\n    \"paymentId\": \"cm3payment123def456\",\n    \"status\": \"ACTIVE\",\n    \"enrolledAt\": \"2025-01-15T10:30:00.000Z\",\n    \"expiresAt\": null,\n    \"completedLessons\": 3,\n    \"progress\": \"25.50\",\n    \"lastAccessedAt\": \"2025-01-20T14:22:00.000Z\",\n    \"completedAt\": null,\n    \"certificateUrl\": null,\n    \"enrollmentNotes\": \"Enrolled through payment cm3payment123def456\",\n    \"createdAt\": \"2025-01-15T10:30:00.000Z\",\n    \"updatedAt\": \"2025-01-20T14:22:00.000Z\",\n    \"student\": {\n      \"id\": \"cm3student123def456\",\n      \"user\": {\n        \"id\": \"cm3user123def456\",\n        \"firstName\": \"Jane\",\n        \"lastName\": \"Smith\",\n        \"email\": \"student@example.com\",\n        \"phone\": \"+1234567890\"\n      }\n    },\n    \"course\": {\n      \"id\": \"cm3course123def456\",\n      \"title\": \"Advanced JavaScript Programming\",\n      \"description\": \"Master advanced JavaScript concepts and patterns\",\n      \"price\": 99.99,\n      \"duration\": 480,\n      \"totalLessons\": 12,\n      \"isActive\": true,\n      \"teacher\": {\n        \"id\": \"cm3teacher123def456\",\n        \"user\": {\n          \"firstName\": \"John\",\n          \"lastName\": \"Doe\",\n          \"email\": \"teacher@example.com\"\n        }\n      }\n    },\n    \"payment\": {\n      \"id\": \"cm3payment123def456\",\n      \"amount\": 99.99,\n      \"currency\": \"VND\",\n      \"status\": \"COMPLETED\",\n      \"method\": \"VNPAY\",\n      \"transactionId\": \"TXN123456789\",\n      \"createdAt\": \"2025-01-15T10:25:00.000Z\"\n    }\n  }\n}"
+						},
+						{
+							"name": "Enrollment Not Found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/enrollments/invalid-id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"enrollments",
+										"invalid-id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Enrollment not found\",\n  \"error\": \"NOT_FOUND\",\n  \"statusCode\": 404\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Enrollment by Payment ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/payment/{{paymentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"payment",
+								"{{paymentId}}"
+							]
+						},
+						"description": "Find enrollment associated with a specific payment ID. Useful for payment verification and enrollment tracking."
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/enrollments/payment/{{paymentId}}",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"enrollments",
+										"payment",
+										"{{paymentId}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Enrollment found successfully\",\n  \"data\": {\n    \"id\": \"cm3enroll123def456\",\n    \"studentId\": \"cm3student123def456\",\n    \"courseId\": \"cm3course123def456\",\n    \"paymentId\": \"cm3payment123def456\",\n    \"status\": \"ACTIVE\",\n    \"enrolledAt\": \"2025-01-15T10:30:00.000Z\",\n    \"completedLessons\": 0,\n    \"progress\": \"0.00\",\n    \"student\": {\n      \"id\": \"cm3student123def456\",\n      \"user\": {\n        \"firstName\": \"Jane\",\n        \"lastName\": \"Smith\",\n        \"email\": \"student@example.com\"\n      }\n    },\n    \"course\": {\n      \"id\": \"cm3course123def456\",\n      \"title\": \"Advanced JavaScript Programming\",\n      \"price\": 99.99,\n      \"teacher\": {\n        \"id\": \"cm3teacher123def456\",\n        \"user\": {\n          \"firstName\": \"John\",\n          \"lastName\": \"Doe\"\n        }\n      }\n    },\n    \"payment\": {\n      \"id\": \"cm3payment123def456\",\n      \"amount\": 99.99,\n      \"status\": \"COMPLETED\",\n      \"method\": \"VNPAY\"\n    }\n  }\n}"
+						},
+						{
+							"name": "Enrollment Not Found for Payment",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/enrollments/payment/invalid-payment-id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"enrollments",
+										"payment",
+										"invalid-payment-id"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": false,\n  \"message\": \"Enrollment not found for this payment\",\n  \"error\": \"NOT_FOUND\",\n  \"statusCode\": 404\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin Statistics & Analytics",
+			"item": [
+				{
+					"name": "Get Enrollment Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"stats"
+							]
+						},
+						"description": "Get enrollment statistics including total, active, completed, and cancelled enrollments. Admin only endpoint."
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/enrollments/stats",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"enrollments",
+										"stats"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Enrollment statistics retrieved successfully\",\n  \"data\": {\n    \"total\": 150,\n    \"active\": 120,\n    \"completed\": 25,\n    \"cancelled\": 5\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Enrollment Statistics by Course",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/stats?courseId={{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"stats"
+							],
+							"query": [
+								{
+									"key": "courseId",
+									"value": "{{courseId}}",
+									"description": "Filter statistics by specific course ID"
+								}
+							]
+						},
+						"description": "Get enrollment statistics filtered by a specific course. Admin only endpoint."
+					}
+				},
+				{
+					"name": "Get Enrollment Statistics by Teacher",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/stats?teacherId={{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"stats"
+							],
+							"query": [
+								{
+									"key": "teacherId",
+									"value": "{{teacherId}}",
+									"description": "Filter statistics by specific teacher ID"
+								}
+							]
+						},
+						"description": "Get enrollment statistics filtered by a specific teacher. Admin only endpoint."
+					}
+				},
+				{
+					"name": "Get Analytics Overview",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/analytics/overview",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"analytics",
+								"overview"
+							]
+						},
+						"description": "Get comprehensive enrollment analytics including revenue data and monthly trends. Admin only endpoint."
+					},
+					"response": [
+						{
+							"name": "Successful Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{authToken}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/enrollments/analytics/overview",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"enrollments",
+										"analytics",
+										"overview"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": true,\n  \"message\": \"Analytics retrieved successfully\",\n  \"data\": {\n    \"totalEnrollments\": 150,\n    \"activeEnrollments\": 120,\n    \"completedEnrollments\": 25,\n    \"monthlyEnrollments\": 35,\n    \"revenue\": 14995.50\n  }\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Pre-request script for enrollment API calls",
+					"",
+					"// Set default headers",
+					"pm.request.headers.add({",
+					"    key: 'Content-Type',",
+					"    value: 'application/json'",
+					"});",
+					"",
+					"// Validate auth token",
+					"const authToken = pm.environment.get('authToken');",
+					"if (!authToken || authToken === '') {",
+					"    console.warn('⚠️ Auth token is not set. Please login first.');",
+					"}",
+					"",
+					"// Log request details",
+					"console.log(`📤 ${pm.request.method} ${pm.request.url.toString()}`);",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Post-request script for enrollment API responses",
+					"",
+					"// Parse response",
+					"let responseJson;",
+					"try {",
+					"    responseJson = pm.response.json();",
+					"} catch (e) {",
+					"    console.error('❌ Failed to parse JSON response:', e);",
+					"    return;",
+					"}",
+					"",
+					"// Log response details",
+					"console.log(`📥 Response Status: ${pm.response.status} ${pm.response.code}`);",
+					"console.log(`📥 Response Message: ${responseJson.message || 'No message'}`);",
+					"",
+					"// Basic response validation",
+					"pm.test('Response has valid structure', function () {",
+					"    pm.expect(responseJson).to.have.property('success');",
+					"    pm.expect(responseJson).to.have.property('message');",
+					"});",
+					"",
+					"// Status code validation",
+					"pm.test('Status code is correct', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 401, 403, 404, 500]);",
+					"});",
+					"",
+					"// Save enrollment data for chaining requests",
+					"if (pm.response.code === 200 && responseJson.success && responseJson.data) {",
+					"    // Save enrollment ID if present",
+					"    if (responseJson.data.id) {",
+					"        pm.environment.set('enrollmentId', responseJson.data.id);",
+					"        console.log(`💾 Saved enrollmentId: ${responseJson.data.id}`);",
+					"    }",
+					"    ",
+					"    // Save student ID if present",
+					"    if (responseJson.data.studentId) {",
+					"        pm.environment.set('studentId', responseJson.data.studentId);",
+					"        console.log(`💾 Saved studentId: ${responseJson.data.studentId}`);",
+					"    }",
+					"    ",
+					"    // Save course ID if present",
+					"    if (responseJson.data.courseId) {",
+					"        pm.environment.set('courseId', responseJson.data.courseId);",
+					"        console.log(`💾 Saved courseId: ${responseJson.data.courseId}`);",
+					"    }",
+					"    ",
+					"    // Save payment ID if present",
+					"    if (responseJson.data.paymentId) {",
+					"        pm.environment.set('paymentId', responseJson.data.paymentId);",
+					"        console.log(`💾 Saved paymentId: ${responseJson.data.paymentId}`);",
+					"    }",
+					"    ",
+					"    // Handle array responses (multiple enrollments)",
+					"    if (Array.isArray(responseJson.data) && responseJson.data.length > 0) {",
+					"        const firstEnrollment = responseJson.data[0];",
+					"        if (firstEnrollment.id) {",
+					"            pm.environment.set('enrollmentId', firstEnrollment.id);",
+					"            console.log(`💾 Saved first enrollmentId: ${firstEnrollment.id}`);",
+					"        }",
+					"    }",
+					"}",
+					"",
+					"// Error handling",
+					"if (!responseJson.success) {",
+					"    console.error(`❌ API Error: ${responseJson.message}`);",
+					"    if (responseJson.error) {",
+					"        console.error(`❌ Error Code: ${responseJson.error}`);",
+					"    }",
+					"}",
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "studentId",
+			"value": "cm3student123def456",
+			"type": "string"
+		},
+		{
+			"key": "teacherId",
+			"value": "cm3teacher123def456",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "cm3course123def456",
+			"type": "string"
+		},
+		{
+			"key": "enrollmentId",
+			"value": "cm3enroll123def456",
+			"type": "string"
+		},
+		{
+			"key": "paymentId",
+			"value": "cm3payment123def456",
+			"type": "string"
+		}
+	]
+}

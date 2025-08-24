@@ -1,0 +1,1258 @@
+{
+	"info": {
+		"_postman_id": "antoree-lesson-package-collection",
+		"name": "Antoree Lesson Package API Collection",
+		"description": "Complete API collection for Antoree Lesson Package Lifecycle Management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "antoree-lesson-package-api"
+	},
+	"item": [
+		{
+			"name": "Package Management",
+			"item": [
+				{
+					"name": "Get Package Details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(200)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.id) {",
+									"        pm.environment.set('packageId', response.data.id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}"
+							]
+						},
+						"description": "Get detailed information about a lesson package"
+					}
+				},
+				{
+					"name": "Get My Active Packages",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/my-packages?status=active",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"my-packages"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "active"
+								}
+							]
+						},
+						"description": "Get current user's active lesson packages"
+					}
+				},
+				{
+					"name": "Get All Packages (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package?page=1&limit=20&status=active&sortBy=createdAt&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "status",
+									"value": "active"
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get all lesson packages with filtering (Admin only)"
+					}
+				},
+				{
+					"name": "Get Package Progress",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/progress",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"progress"
+							]
+						},
+						"description": "Get detailed progress information for a lesson package"
+					}
+				},
+				{
+					"name": "Update Package Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"SUSPENDED\",\n  \"statusReason\": \"Student requested temporary suspension due to travel\",\n  \"suspensionPeriod\": {\n    \"startDate\": \"2024-02-15\",\n    \"endDate\": \"2024-03-15\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"status"
+							]
+						},
+						"description": "Update package status (Admin/Teacher only)"
+					}
+				}
+			],
+			"description": "Basic lesson package management operations"
+		},
+		{
+			"name": "Lesson Scheduling",
+			"item": [
+				{
+					"name": "Schedule Next Lesson",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.lessonId) {",
+									"        pm.environment.set('lessonId', response.data.lessonId);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scheduledAt\": \"2024-02-15T14:00:00Z\",\n  \"duration\": 60,\n  \"lessonType\": \"regular\",\n  \"lessonTopics\": [\"Business English\", \"Presentation Skills\"],\n  \"learningObjectives\": [\"Practice giving presentations\", \"Learn business vocabulary\"],\n  \"homework\": \"Prepare a 5-minute presentation about your company\",\n  \"notes\": \"Focus on presentation delivery and confidence building\",\n  \"priority\": \"high\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/schedule-lesson",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"schedule-lesson"
+							]
+						},
+						"description": "Schedule the next lesson in the package"
+					}
+				},
+				{
+					"name": "Reschedule Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newScheduledAt\": \"2024-02-16T14:00:00Z\",\n  \"reason\": \"Schedule conflict - student has a medical appointment\",\n  \"requestedBy\": \"student\",\n  \"notifyTeacher\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/lessons/{{lessonId}}/reschedule",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"lessons",
+								"{{lessonId}}",
+								"reschedule"
+							]
+						},
+						"description": "Reschedule a scheduled lesson"
+					}
+				},
+				{
+					"name": "Cancel Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							"Content-Type: application/json"
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reason\": \"Student is ill and cannot attend\",\n  \"refundCredits\": true,\n  \"notifyTeacher\": true,\n  \"cancellationPolicy\": \"illness\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/lessons/{{lessonId}}/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"lessons",
+								"{{lessonId}}",
+								"cancel"
+							]
+						},
+						"description": "Cancel a scheduled lesson"
+					}
+				},
+				{
+					"name": "Get Available Slots",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/available-slots?startDate=2024-02-15&endDate=2024-02-22&duration=60",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"available-slots"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-02-15"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-02-22"
+								},
+								{
+									"key": "duration",
+									"value": "60"
+								}
+							]
+						},
+						"description": "Get available time slots for scheduling lessons"
+					}
+				},
+				{
+					"name": "Get Scheduled Lessons",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/lessons?status=scheduled&upcoming=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"lessons"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "scheduled"
+								},
+								{
+									"key": "upcoming",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Get all scheduled lessons for the package"
+					}
+				}
+			],
+			"description": "Lesson scheduling and management"
+		},
+		{
+			"name": "Attendance & Completion",
+			"item": [
+				{
+					"name": "Mark Attendance",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attendanceStatus\": \"PRESENT\",\n  \"joinedAt\": \"2024-02-15T14:02:00Z\",\n  \"leftAt\": \"2024-02-15T15:05:00Z\",\n  \"participationLevel\": \"ACTIVE\",\n  \"punctuality\": \"ON_TIME\",\n  \"homeworkCompleted\": true,\n  \"notes\": \"Student was engaged and participated actively in all exercises\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/lessons/{{lessonId}}/attendance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"lessons",
+								"{{lessonId}}",
+								"attendance"
+							]
+						},
+						"description": "Mark student attendance for a lesson (Teacher only)"
+					}
+				},
+				{
+					"name": "Complete Lesson",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lessonSummary\": \"Covered business presentation skills, practiced giving presentations, reviewed key vocabulary\",\n  \"topicsCovered\": [\"Presentation structure\", \"Body language\", \"Q&A handling\"],\n  \"studentPerformance\": {\n    \"strengths\": [\"Good pronunciation\", \"Confident delivery\"],\n    \"areasForImprovement\": [\"Grammar accuracy\", \"Vocabulary expansion\"],\n    \"progressNotes\": \"Significant improvement in confidence since last lesson\"\n  },\n  \"homework\": {\n    \"description\": \"Practice presentation on chosen topic\",\n    \"dueDate\": \"2024-02-20\",\n    \"estimatedTime\": 30\n  },\n  \"nextLessonFocus\": [\"Advanced presentation techniques\", \"Handling difficult questions\"],\n  \"materialsCovered\": [\"Business English textbook Ch. 5\", \"Presentation slides\"],\n  \"lessonRating\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/lessons/{{lessonId}}/complete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"lessons",
+								"{{lessonId}}",
+								"complete"
+							]
+						},
+						"description": "Complete a lesson with feedback and notes (Teacher only)"
+					}
+				},
+				{
+					"name": "Submit Student Feedback",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lessonRating\": 5,\n  \"teacherRating\": 5,\n  \"feedback\": \"Excellent lesson! The teacher explained everything clearly and gave great practical examples.\",\n  \"mostHelpful\": \"The presentation practice with real-time feedback was very valuable\",\n  \"suggestions\": \"Maybe include more advanced vocabulary exercises\",\n  \"difficultyLevel\": \"appropriate\",\n  \"paceRating\": 4,\n  \"materialQuality\": 5,\n  \"wouldRecommend\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/lessons/{{lessonId}}/student-feedback",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"lessons",
+								"{{lessonId}}",
+								"student-feedback"
+							]
+						},
+						"description": "Submit student feedback for completed lesson (Student only)"
+					}
+				},
+				{
+					"name": "Get Lesson Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/lessons/{{lessonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"lessons",
+								"{{lessonId}}"
+							]
+						},
+						"description": "Get detailed information about a specific lesson"
+					}
+				},
+				{
+					"name": "Get Attendance Record",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/attendance-record",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"attendance-record"
+							]
+						},
+						"description": "Get complete attendance record for the package"
+					}
+				}
+			],
+			"description": "Lesson attendance tracking and completion management"
+		},
+		{
+			"name": "Package Lifecycle",
+			"item": [
+				{
+					"name": "Pause Package",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reason\": \"Travel abroad for work\",\n  \"pauseDuration\": 30,\n  \"plannedReturnDate\": \"2024-03-15\",\n  \"notifyTeacher\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/pause",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"pause"
+							]
+						},
+						"description": "Pause package temporarily (Student/Admin only)"
+					}
+				},
+				{
+					"name": "Resume Package",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"resumeDate\": \"2024-02-20\",\n  \"newSchedulePreferences\": {\n    \"preferredDays\": [\"Monday\", \"Wednesday\", \"Friday\"],\n    \"preferredTimes\": [\"14:00\", \"15:00\", \"16:00\"]\n  },\n  \"notes\": \"Ready to resume lessons with regular schedule\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/resume",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"resume"
+							]
+						},
+						"description": "Resume paused package (Student/Admin only)"
+					}
+				},
+				{
+					"name": "Extend Package",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"extensionType\": \"LESSONS\",\n  \"additionalLessons\": 10,\n  \"extensionReason\": \"Student wants to continue with current teacher\",\n  \"paymentMethod\": \"card\",\n  \"autoRenewal\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/extend",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"extend"
+							]
+						},
+						"description": "Extend package with additional lessons or time"
+					}
+				},
+				{
+					"name": "Transfer Package",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newTeacherId\": \"{{newTeacherId}}\",\n  \"transferReason\": \"Teacher not available for preferred schedule\",\n  \"effectiveDate\": \"2024-02-20\",\n  \"transferNotes\": \"Student progressing well, focus on conversation skills\",\n  \"approvalRequired\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/transfer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"transfer"
+							]
+						},
+						"description": "Transfer package to different teacher (Admin only)"
+					}
+				},
+				{
+					"name": "Check Renewal Options",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/renewal-options",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"renewal-options"
+							]
+						},
+						"description": "Get available renewal options for expiring package"
+					}
+				},
+				{
+					"name": "Renew Package",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"renewalType\": \"same_package\",\n  \"numberOfLessons\": 20,\n  \"packageDuration\": 90,\n  \"paymentMethod\": \"card\",\n  \"autoRenewal\": true,\n  \"startDate\": \"2024-03-01\",\n  \"specialRequests\": \"Continue with same teacher and schedule\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/renew",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"renew"
+							]
+						},
+						"description": "Renew expiring package (Student only)"
+					}
+				}
+			],
+			"description": "Package lifecycle management operations"
+		},
+		{
+			"name": "Statistics & Reports",
+			"item": [
+				{
+					"name": "Get Package Statistics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/statistics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"statistics"
+							]
+						},
+						"description": "Get comprehensive statistics for the package"
+					}
+				},
+				{
+					"name": "Get Student Learning Report",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/learning-report?period=monthly",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"learning-report"
+							],
+							"query": [
+								{
+									"key": "period",
+									"value": "monthly"
+								}
+							]
+						},
+						"description": "Generate student learning progress report"
+					}
+				},
+				{
+					"name": "Get Teacher Performance Report",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/teacher-report",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"teacher-report"
+							]
+						},
+						"description": "Get teacher performance report for the package (Admin only)"
+					}
+				},
+				{
+					"name": "Get Usage Analytics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/analytics?metrics=attendance,completion,progress&timeframe=last_30_days",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"analytics"
+							],
+							"query": [
+								{
+									"key": "metrics",
+									"value": "attendance,completion,progress"
+								},
+								{
+									"key": "timeframe",
+									"value": "last_30_days"
+								}
+							]
+						},
+						"description": "Get detailed usage analytics for the package"
+					}
+				},
+				{
+					"name": "Export Package Data",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/{{packageId}}/export?format=pdf&include=lessons,attendance,feedback",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"{{packageId}}",
+								"export"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "pdf"
+								},
+								{
+									"key": "include",
+									"value": "lessons,attendance,feedback"
+								}
+							]
+						},
+						"description": "Export package data in various formats"
+					}
+				}
+			],
+			"description": "Statistics, reports, and analytics"
+		},
+		{
+			"name": "Package Administration",
+			"item": [
+				{
+					"name": "Create New Package (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.id) {",
+									"        pm.environment.set('newPackageId', response.data.id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"studentId\": \"{{studentId}}\",\n  \"teacherId\": \"{{teacherId}}\",\n  \"packageType\": \"INDIVIDUAL_LESSONS\",\n  \"numberOfLessons\": 20,\n  \"lessonDuration\": 60,\n  \"packageDuration\": 90,\n  \"startDate\": \"2024-02-15\",\n  \"endDate\": \"2024-05-15\",\n  \"totalAmount\": 800.00,\n  \"currency\": \"USD\",\n  \"paymentStatus\": \"PAID\",\n  \"learningGoals\": {\n    \"currentLevel\": \"INTERMEDIATE\",\n    \"targetLevel\": \"UPPER_INTERMEDIATE\",\n    \"focusAreas\": [\"Speaking\", \"Business English\", \"Presentation Skills\"]\n  },\n  \"schedule\": {\n    \"frequency\": \"TWICE_WEEKLY\",\n    \"preferredDays\": [\"Tuesday\", \"Thursday\"],\n    \"preferredTimes\": [\"14:00\", \"15:00\", \"16:00\"]\n  },\n  \"autoRenewal\": false,\n  \"specialInstructions\": \"Student needs to prepare for international business meetings\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/admin/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"admin",
+								"create"
+							]
+						},
+						"description": "Create new lesson package (Admin only)"
+					}
+				},
+				{
+					"name": "Update Package Configuration",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"packageDuration\": 120,\n  \"endDate\": \"2024-06-15\",\n  \"schedule\": {\n    \"frequency\": \"THREE_TIMES_WEEKLY\",\n    \"preferredDays\": [\"Monday\", \"Wednesday\", \"Friday\"]\n  },\n  \"learningGoals\": {\n    \"targetLevel\": \"ADVANCED\",\n    \"focusAreas\": [\"Advanced Grammar\", \"Academic Writing\", \"Debate Skills\"]\n  },\n  \"updateReason\": \"Student showed faster progress than expected\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/admin/{{packageId}}/update",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"admin",
+								"{{packageId}}",
+								"update"
+							]
+						},
+						"description": "Update package configuration (Admin only)"
+					}
+				},
+				{
+					"name": "Cancel Package (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cancellationReason\": \"Student relocated permanently\",\n  \"refundPolicy\": \"PRORATED\",\n  \"effectiveDate\": \"2024-02-20\",\n  \"notifyParties\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/admin/{{packageId}}/cancel",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"admin",
+								"{{packageId}}",
+								"cancel"
+							]
+						},
+						"description": "Cancel package with refund handling (Admin only)"
+					}
+				},
+				{
+					"name": "Get Package Audit Log",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lesson-package/admin/{{packageId}}/audit-log",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lesson-package",
+								"admin",
+								"{{packageId}}",
+								"audit-log"
+							]
+						},
+						"description": "Get complete audit log for package (Admin only)"
+					}
+				}
+			],
+			"description": "Administrative package management operations"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8000",
+			"type": "string",
+			"description": "Base URL for the API"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "Current user ID"
+		},
+		{
+			"key": "teacherId",
+			"value": "",
+			"type": "string",
+			"description": "Teacher ID for testing"
+		},
+		{
+			"key": "newTeacherId",
+			"value": "",
+			"type": "string",
+			"description": "New teacher ID for transfers"
+		},
+		{
+			"key": "studentId",
+			"value": "",
+			"type": "string",
+			"description": "Student ID for testing"
+		},
+		{
+			"key": "packageId",
+			"value": "",
+			"type": "string",
+			"description": "Lesson package ID for testing"
+		},
+		{
+			"key": "newPackageId",
+			"value": "",
+			"type": "string",
+			"description": "New package ID for admin operations"
+		},
+		{
+			"key": "lessonId",
+			"value": "",
+			"type": "string",
+			"description": "Individual lesson ID for testing"
+		}
+	]
+}

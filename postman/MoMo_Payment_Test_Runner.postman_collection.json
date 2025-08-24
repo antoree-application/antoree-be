@@ -1,0 +1,695 @@
+{
+	"info": {
+		"_postman_id": "momo-payment-test-runner",
+		"name": "MoMo Payment Test Runner",
+		"description": "Automated test suite for MoMo payment integration. Runs comprehensive tests including payment flow, webhooks, and cache management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345679"
+	},
+	"item": [
+		{
+			"name": "Setup Tests",
+			"item": [
+				{
+					"name": "Verify Payment Methods Available",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"MoMo payment method is available\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an('array');",
+									"    ",
+									"    var momoMethod = jsonData.find(method => method.id === 'momo');",
+									"    pm.expect(momoMethod).to.not.be.undefined;",
+									"    pm.expect(momoMethod.enabled).to.be.true;",
+									"    pm.expect(momoMethod.minAmount).to.equal(1000);",
+									"    pm.expect(momoMethod.maxAmount).to.equal(20000000);",
+									"});",
+									"",
+									"console.log('✅ Payment methods verification completed');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/payments/methods",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"methods"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Payment Flow Tests",
+			"item": [
+				{
+					"name": "Create Course Payment - Valid Data",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate unique test data",
+									"const timestamp = Date.now();",
+									"pm.environment.set('test_email', `student${timestamp}@test.com`);",
+									"pm.environment.set('test_course_id', 'course-test-123');",
+									"",
+									"console.log('🚀 Starting payment creation test with:', {",
+									"    email: pm.environment.get('test_email'),",
+									"    courseId: pm.environment.get('test_course_id')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response contains required payment data\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    // Payment URL validation",
+									"    pm.expect(jsonData).to.have.property('paymentUrl');",
+									"    pm.expect(jsonData.paymentUrl).to.include('momo.vn');",
+									"    ",
+									"    // Payment ID validation",
+									"    pm.expect(jsonData).to.have.property('paymentId');",
+									"    pm.expect(jsonData.paymentId).to.be.a('string');",
+									"    pm.expect(jsonData.paymentId.length).to.be.greaterThan(10);",
+									"    ",
+									"    // Order ID validation",
+									"    pm.expect(jsonData).to.have.property('orderId');",
+									"    pm.expect(jsonData.orderId).to.include('PAY');",
+									"    ",
+									"    // Amount validation",
+									"    pm.expect(jsonData).to.have.property('amount');",
+									"    pm.expect(jsonData.amount).to.be.a('number');",
+									"    pm.expect(jsonData.amount).to.be.at.least(1000);",
+									"    ",
+									"    // Course data validation",
+									"    pm.expect(jsonData).to.have.property('course');",
+									"    pm.expect(jsonData.course).to.have.property('id');",
+									"    pm.expect(jsonData.course).to.have.property('name');",
+									"    pm.expect(jsonData.course).to.have.property('teacher');",
+									"    ",
+									"    // Student data validation",
+									"    pm.expect(jsonData).to.have.property('student');",
+									"    pm.expect(jsonData.student).to.have.property('firstName');",
+									"    pm.expect(jsonData.student).to.have.property('lastName');",
+									"    pm.expect(jsonData.student).to.have.property('email');",
+									"    pm.expect(jsonData.student).to.have.property('isNewUser');",
+									"});",
+									"",
+									"// Store payment data for subsequent tests",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('payment_id', jsonData.paymentId);",
+									"    pm.environment.set('order_id', jsonData.orderId);",
+									"    pm.environment.set('payment_amount', jsonData.amount);",
+									"    ",
+									"    console.log('💰 Payment created successfully:', {",
+									"        paymentId: jsonData.paymentId,",
+									"        orderId: jsonData.orderId,",
+									"        amount: jsonData.amount",
+									"    });",
+									"}",
+									"",
+									"pm.test(\"Response time is acceptable\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{test_course_id}}\",\n  \"firstName\": \"{{student_first_name}}\",\n  \"lastName\": \"{{student_last_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"phoneNumber\": \"{{student_phone}}\",\n  \"preferredStartDate\": \"{{preferred_start_date}}\",\n  \"specialRequests\": \"{{special_requests}}\",\n  \"couponCode\": \"{{coupon_code}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/simple/course",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"simple",
+								"course"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Course Payment - Invalid Course ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 404\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"pm.test(\"Error message is descriptive\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData.message).to.include('not found');",
+									"});",
+									"",
+									"console.log('✅ Invalid course ID test passed');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"invalid-course-id-12345\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"test@example.com\",\n  \"phoneNumber\": \"+84901234567\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/simple/course",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"simple",
+								"course"
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Course Payment - Missing Required Fields",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test(\"Validation error is returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    // Should contain validation errors for missing fields",
+									"});",
+									"",
+									"console.log('✅ Missing fields validation test passed');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"course-123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/simple/course",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"simple",
+								"course"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Webhook Tests",
+			"item": [
+				{
+					"name": "Test Successful Payment Webhook",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Ensure we have payment data from previous tests",
+									"if (!pm.environment.get('order_id')) {",
+									"    pm.environment.set('order_id', 'TEST_ORDER_' + Date.now());",
+									"}",
+									"if (!pm.environment.get('payment_amount')) {",
+									"    pm.environment.set('payment_amount', 5000000);",
+									"}",
+									"",
+									"console.log('🔔 Testing webhook with order:', pm.environment.get('order_id'));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Webhook returns success response\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('RspCode');",
+									"    pm.expect(jsonData).to.have.property('Message');",
+									"    ",
+									"    // For successful webhook processing",
+									"    if (jsonData.RspCode === '00') {",
+									"        pm.expect(jsonData.Message).to.equal('Confirm Success');",
+									"        console.log('✅ Webhook processed successfully');",
+									"    } else {",
+									"        console.log('❌ Webhook processing failed:', jsonData.Message);",
+									"    }",
+									"});",
+									"",
+									"pm.test(\"Response time is fast\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partnerCode\": \"MOMO\",\n  \"orderId\": \"{{order_id}}\",\n  \"requestId\": \"MOMO{{$timestamp}}\",\n  \"amount\": {{payment_amount}},\n  \"orderInfo\": \"Course payment test\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": {{$timestamp}},\n  \"resultCode\": 0,\n  \"message\": \"Successful.\",\n  \"payType\": \"qr\",\n  \"responseTime\": {{$timestamp}},\n  \"extraData\": \"\",\n  \"signature\": \"test_signature_{{$timestamp}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/webhook/momo",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"webhook",
+								"momo"
+							]
+						}
+					}
+				},
+				{
+					"name": "Test Failed Payment Webhook",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Webhook handles failed payment\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('RspCode');",
+									"    pm.expect(jsonData).to.have.property('Message');",
+									"    ",
+									"    // Failed webhook should still return proper response",
+									"    console.log('📝 Webhook response for failed payment:', jsonData);",
+									"});",
+									"",
+									"console.log('✅ Failed payment webhook test completed');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partnerCode\": \"MOMO\",\n  \"orderId\": \"FAILED_ORDER_{{$timestamp}}\",\n  \"requestId\": \"MOMO{{$timestamp}}\",\n  \"amount\": 5000000,\n  \"orderInfo\": \"Failed payment test\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": {{$timestamp}},\n  \"resultCode\": 1000,\n  \"message\": \"Transaction failed\",\n  \"payType\": \"qr\",\n  \"responseTime\": {{$timestamp}},\n  \"extraData\": \"\",\n  \"signature\": \"test_signature_{{$timestamp}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/webhook/momo",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"webhook",
+								"momo"
+							]
+						}
+					}
+				},
+				{
+					"name": "Test IPN Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"IPN response is valid\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('RspCode');",
+									"    pm.expect(jsonData).to.have.property('Message');",
+									"});",
+									"",
+									"console.log('✅ IPN endpoint test completed');"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partnerCode\": \"MOMO\",\n  \"orderId\": \"IPN_TEST_{{$timestamp}}\",\n  \"requestId\": \"MOMO{{$timestamp}}\",\n  \"amount\": 3000000,\n  \"orderInfo\": \"IPN test payment\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": {{$timestamp}},\n  \"resultCode\": 0,\n  \"message\": \"Successful.\",\n  \"payType\": \"qr\",\n  \"responseTime\": {{$timestamp}},\n  \"extraData\": \"\",\n  \"signature\": \"test_signature_{{$timestamp}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/momo/ipn",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"momo",
+								"ipn"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cache Management Tests",
+			"item": [
+				{
+					"name": "Get Cache Statistics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Cache statistics structure is valid\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('payments');",
+									"    pm.expect(jsonData).to.have.property('courses');",
+									"    pm.expect(jsonData).to.have.property('students');",
+									"    pm.expect(jsonData).to.have.property('teachers');",
+									"    pm.expect(jsonData).to.have.property('total');",
+									"    ",
+									"    // All values should be numbers",
+									"    pm.expect(jsonData.payments).to.be.a('number');",
+									"    pm.expect(jsonData.courses).to.be.a('number');",
+									"    pm.expect(jsonData.students).to.be.a('number');",
+									"    pm.expect(jsonData.teachers).to.be.a('number');",
+									"    pm.expect(jsonData.total).to.be.a('number');",
+									"});",
+									"",
+									"console.log('📊 Cache statistics retrieved:', pm.response.json());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/payments/cache/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"stats"
+							]
+						}
+					}
+				},
+				{
+					"name": "Clear Payment Cache",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Cache clear response is valid\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"    pm.expect(jsonData).to.have.property('cleared');",
+									"    pm.expect(jsonData.cleared).to.be.a('boolean');",
+									"});",
+									"",
+									"console.log('🧹 Payment cache cleared:', pm.response.json());"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/payments/cache/clear/payment",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"payment"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"console.log('🚀 Running MoMo Payment Test Suite...');",
+					"",
+					"// Set default environment variables if not set",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://127.0.0.1:8080');",
+					"    console.log('📍 Base URL set to default: http://127.0.0.1:8080');",
+					"}",
+					"",
+					"// Generate test data",
+					"const timestamp = Date.now();",
+					"pm.environment.set('test_timestamp', timestamp);",
+					"",
+					"// Set test course ID if not exists",
+					"if (!pm.environment.get('test_course_id')) {",
+					"    pm.environment.set('test_course_id', 'test-course-123');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test that runs after each request",
+					"pm.test(\"Response time is reasonable\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+					"});",
+					"",
+					"// Log request details for debugging",
+					"if (pm.response.code >= 400) {",
+					"    console.log('❌ Request failed:', {",
+					"        method: pm.request.method,",
+					"        url: pm.request.url.toString(),",
+					"        status: pm.response.code,",
+					"        response: pm.response.text()",
+					"    });",
+					"} else {",
+					"    console.log('✅ Request successful:', {",
+					"        method: pm.request.method,",
+					"        url: pm.request.url.toString(),",
+					"        status: pm.response.code",
+					"    });",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8080",
+			"type": "string"
+		},
+		{
+			"key": "test_course_id",
+			"value": "test-course-123",
+			"type": "string"
+		},
+		{
+			"key": "student_first_name",
+			"value": "John",
+			"type": "string"
+		},
+		{
+			"key": "student_last_name",
+			"value": "Doe",
+			"type": "string"
+		},
+		{
+			"key": "student_phone",
+			"value": "+84901234567",
+			"type": "string"
+		},
+		{
+			"key": "preferred_start_date",
+			"value": "2025-09-01T09:00:00Z",
+			"type": "string"
+		},
+		{
+			"key": "special_requests",
+			"value": "Automated test - prefer morning classes",
+			"type": "string"
+		},
+		{
+			"key": "coupon_code",
+			"value": "WELCOME10",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "your_admin_jwt_token_here",
+			"type": "string"
+		}
+	]
+}

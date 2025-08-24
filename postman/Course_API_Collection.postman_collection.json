@@ -1,0 +1,725 @@
+{
+	"info": {
+		"_postman_id": "antoree-course-collection",
+		"name": "Antoree Course API Collection",
+		"description": "Course management endpoints for Antoree platform - Create, manage and book English courses",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "antoree-course-api"
+	},
+	"item": [
+		{
+			"name": "Course Management (Teacher)",
+			"item": [
+				{
+					"name": "Create Course",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{teacherToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Business English Mastery\",\n  \"description\": \"A comprehensive course designed to improve your business English skills, including presentations, meetings, and professional communication.\",\n  \"duration\": 60,\n  \"totalLessons\": 10,\n  \"price\": 1500000,\n  \"level\": \"INTERMEDIATE\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							]
+						},
+						"description": "Create a new course. Only approved teachers can create courses."
+					}
+				},
+				{
+					"name": "Get My Courses",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{teacherToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/courses/my-courses?page=1&limit=10&sortBy=createdAt&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"my-courses"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Get courses created by the authenticated teacher"
+					}
+				},
+				{
+					"name": "Update Course",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{teacherToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Advanced Business English\",\n  \"description\": \"Updated description for advanced business English course\",\n  \"price\": 1800000,\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Update course details. Teachers can only update their own courses."
+					}
+				},
+				{
+					"name": "Delete Course",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{teacherToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Soft delete a course. Teachers can only delete their own courses."
+					}
+				},
+				{
+					"name": "Get Course Analytics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{teacherToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}/analytics",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}",
+								"analytics"
+							]
+						},
+						"description": "Get analytics data for a specific course (teacher only)"
+					}
+				}
+			],
+			"description": "Course management endpoints for teachers"
+		},
+		{
+			"name": "Course Discovery (Public)",
+			"item": [
+				{
+					"name": "Get All Courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses?page=1&limit=10&sortBy=createdAt&sortOrder=desc&isActive=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								},
+								{
+									"key": "isActive",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Retrieve all active courses with pagination"
+					}
+				},
+				{
+					"name": "Search Courses with Filters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses?search=business&level=INTERMEDIATE&minPrice=500000&maxPrice=2000000&minDuration=45&maxDuration=90&page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "business"
+								},
+								{
+									"key": "level",
+									"value": "INTERMEDIATE"
+								},
+								{
+									"key": "minPrice",
+									"value": "500000"
+								},
+								{
+									"key": "maxPrice",
+									"value": "2000000"
+								},
+								{
+									"key": "minDuration",
+									"value": "45"
+								},
+								{
+									"key": "maxDuration",
+									"value": "90"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Search courses with multiple filters including price, level, duration, etc."
+					}
+				},
+				{
+					"name": "Get Course by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Get detailed information about a specific course"
+					}
+				},
+				{
+					"name": "Get Popular Courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/popular?limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"popular"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get the most popular courses based on booking statistics"
+					}
+				},
+				{
+					"name": "Search Courses by Text",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/search?q=business english&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "business english"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Search courses by name, description, or teacher specialties"
+					}
+				},
+				{
+					"name": "Get Courses by Teacher",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses/teacher/{{teacherId}}?page=1&limit=10&isActive=true",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses",
+								"teacher",
+								"{{teacherId}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "isActive",
+									"value": "true"
+								}
+							]
+						},
+						"description": "Get all courses created by a specific teacher"
+					}
+				}
+			],
+			"description": "Public course discovery and search endpoints"
+		},
+		{
+			"name": "Course Filtering Examples",
+			"item": [
+				{
+					"name": "Filter by English Level",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses?level=BEGINNER&page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "level",
+									"value": "BEGINNER"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get courses for beginners"
+					}
+				},
+				{
+					"name": "Filter by Price Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses?minPrice=1000000&maxPrice=3000000&page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "minPrice",
+									"value": "1000000"
+								},
+								{
+									"key": "maxPrice",
+									"value": "3000000"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get courses within a specific price range (VND)"
+					}
+				},
+				{
+					"name": "Filter by Duration",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses?minDuration=60&maxDuration=120&page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "minDuration",
+									"value": "60"
+								},
+								{
+									"key": "maxDuration",
+									"value": "120"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get courses with lessons between 60-120 minutes"
+					}
+				},
+				{
+					"name": "Filter by Number of Lessons",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses?minLessons=10&maxLessons=20&page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "minLessons",
+									"value": "10"
+								},
+								{
+									"key": "maxLessons",
+									"value": "20"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get courses with 10-20 lessons"
+					}
+				},
+				{
+					"name": "Sort by Price (Low to High)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses?sortBy=price&sortOrder=asc&page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "sortBy",
+									"value": "price"
+								},
+								{
+									"key": "sortOrder",
+									"value": "asc"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get courses sorted by price from low to high"
+					}
+				},
+				{
+					"name": "Sort by Creation Date (Newest First)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/courses?sortBy=createdAt&sortOrder=desc&page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							],
+							"query": [
+								{
+									"key": "sortBy",
+									"value": "createdAt"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get newest courses first"
+					}
+				}
+			],
+			"description": "Examples of different filtering and sorting options"
+		},
+		{
+			"name": "Course Scenarios",
+			"item": [
+				{
+					"name": "Create IELTS Preparation Course",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{teacherToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"IELTS Preparation Intensive\",\n  \"description\": \"Comprehensive IELTS preparation course covering all four skills: Reading, Writing, Listening, and Speaking. Includes practice tests and personalized feedback.\",\n  \"duration\": 90,\n  \"totalLessons\": 20,\n  \"price\": 2500000,\n  \"level\": \"UPPER_INTERMEDIATE\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							]
+						},
+						"description": "Create an IELTS preparation course"
+					}
+				},
+				{
+					"name": "Create Conversation Course",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{teacherToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"English Conversation Fluency\",\n  \"description\": \"Improve your English speaking skills through structured conversations, role-plays, and real-life scenarios. Perfect for building confidence in everyday English.\",\n  \"duration\": 45,\n  \"totalLessons\": 15,\n  \"price\": 1200000,\n  \"level\": \"INTERMEDIATE\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							]
+						},
+						"description": "Create a conversation-focused course"
+					}
+				},
+				{
+					"name": "Create Grammar Fundamentals Course",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{teacherToken}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"English Grammar Fundamentals\",\n  \"description\": \"Master the basics of English grammar with clear explanations, practical exercises, and real-world examples. Ideal for beginners and elementary students.\",\n  \"duration\": 60,\n  \"totalLessons\": 12,\n  \"price\": 800000,\n  \"level\": \"BEGINNER\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"courses"
+							]
+						},
+						"description": "Create a grammar fundamentals course"
+					}
+				}
+			],
+			"description": "Common course creation scenarios"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api",
+			"type": "string"
+		},
+		{
+			"key": "teacherToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "studentToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "teacherId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

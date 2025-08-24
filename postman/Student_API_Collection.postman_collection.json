@@ -1,0 +1,540 @@
+{
+	"info": {
+		"_postman_id": "student-api-collection-2025",
+		"name": "Student API Collection",
+		"description": "API collection for Student management endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "student-api-endpoints"
+	},
+	"item": [
+		{
+			"name": "Student Management",
+			"item": [
+				{
+					"name": "Create Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phoneNumber\": \"+84901234567\",\n  \"dateOfBirth\": \"1995-05-15\",\n  \"gender\": \"MALE\",\n  \"address\": \"123 Main St, Ho Chi Minh City\",\n  \"goals\": [\"COMMUNICATION\", \"BUSINESS\"],\n  \"currentLevel\": \"INTERMEDIATE\",\n  \"preferredLanguage\": \"ENGLISH\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students"
+							]
+						},
+						"description": "Create a new student account (Public endpoint)"
+					}
+				},
+				{
+					"name": "Get All Students",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students?page=1&limit=10&search=&status=ACTIVE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								}
+							]
+						},
+						"description": "Get all students with search and pagination (Admin/Teacher only)"
+					}
+				},
+				{
+					"name": "Get Student Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"profile"
+							]
+						},
+						"description": "Get current student's profile (Student only)"
+					}
+				},
+				{
+					"name": "Get Student by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}"
+							]
+						},
+						"description": "Get student by ID (Admin/Teacher only)"
+					}
+				},
+				{
+					"name": "Get Student Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}",
+								"stats"
+							]
+						},
+						"description": "Get student statistics (Admin or own stats only)"
+					}
+				},
+				{
+					"name": "Update Student Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"phoneNumber\": \"+84987654321\",\n  \"address\": \"456 New St, Ho Chi Minh City\",\n  \"goals\": [\"TRAVEL\", \"ACADEMIC\"],\n  \"currentLevel\": \"ADVANCED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"profile"
+							]
+						},
+						"description": "Update current student's profile (Student only)"
+					}
+				},
+				{
+					"name": "Update Student by ID",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"Updated\",\n  \"lastName\": \"Name\",\n  \"status\": \"ACTIVE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}"
+							]
+						},
+						"description": "Update student by ID (Admin only)"
+					}
+				},
+				{
+					"name": "Deactivate Student",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}/deactivate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}",
+								"deactivate"
+							]
+						},
+						"description": "Deactivate student account (Admin only)"
+					}
+				},
+				{
+					"name": "Activate Student",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}/activate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}",
+								"activate"
+							]
+						},
+						"description": "Activate student account (Admin only)"
+					}
+				},
+				{
+					"name": "Delete Student",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"{{studentId}}"
+							]
+						},
+						"description": "Delete student account (Admin only)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Teacher Discovery",
+			"item": [
+				{
+					"name": "Browse Teachers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/browse-teachers?page=1&limit=10&search=&specialty=&language=&minPrice=&maxPrice=&rating=",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"browse-teachers"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": ""
+								},
+								{
+									"key": "specialty",
+									"value": ""
+								},
+								{
+									"key": "language",
+									"value": ""
+								},
+								{
+									"key": "minPrice",
+									"value": ""
+								},
+								{
+									"key": "maxPrice",
+									"value": ""
+								},
+								{
+									"key": "rating",
+									"value": ""
+								}
+							]
+						},
+						"description": "Browse and search available teachers (Student only)"
+					}
+				},
+				{
+					"name": "Get Recommended Teachers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/teachers/recommended",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"teachers",
+								"recommended"
+							]
+						},
+						"description": "Get recommended teachers based on student profile (Student only)"
+					}
+				},
+				{
+					"name": "Get Teacher Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/teachers/{{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"teachers",
+								"{{teacherId}}"
+							]
+						},
+						"description": "Get detailed teacher information with availability and reviews (Student only)"
+					}
+				},
+				{
+					"name": "Get Teacher Available Slots",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/teachers/{{teacherId}}/available-slots?startDate=2024-01-15&endDate=2024-01-22",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"teachers",
+								"{{teacherId}}",
+								"available-slots"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-01-15"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-01-22"
+								}
+							]
+						},
+						"description": "Get available booking slots for a teacher (Student only)"
+					}
+				},
+				{
+					"name": "Get Teacher Lesson Packages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/students/teachers/{{teacherId}}/packages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"teachers",
+								"{{teacherId}}",
+								"packages"
+							]
+						},
+						"description": "Get lesson packages for a specific teacher (Student only)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Reference Data",
+			"item": [
+				{
+					"name": "Get Teacher Specialties",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/students/teachers/specialties",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"teachers",
+								"specialties"
+							]
+						},
+						"description": "Get all available teacher specialties (Public endpoint)"
+					}
+				},
+				{
+					"name": "Get Teacher Languages",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/students/teachers/languages",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"students",
+								"teachers",
+								"languages"
+							]
+						},
+						"description": "Get all available teacher languages (Public endpoint)"
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "your_jwt_token_here",
+			"type": "string"
+		},
+		{
+			"key": "studentId",
+			"value": "student_id_here",
+			"type": "string"
+		},
+		{
+			"key": "teacherId",
+			"value": "teacher_id_here",
+			"type": "string"
+		}
+	]
+}

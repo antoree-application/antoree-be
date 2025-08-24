@@ -1,0 +1,396 @@
+{
+	"info": {
+		"_postman_id": "simple-course-payment-collection",
+		"name": "Simple Course Payment API",
+		"description": "Collection for testing the simplified course payment flow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Active Courses",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/courses?isActive=true&limit=10",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"courses"
+					],
+					"query": [
+						{
+							"key": "isActive",
+							"value": "true"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						}
+					]
+				},
+				"description": "Get list of active courses available for purchase"
+			}
+		},
+		{
+			"name": "Create Simple Course Payment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe.test@example.com\",\n  \"phoneNumber\": \"+84901234567\",\n  \"preferredStartDate\": \"2024-03-01\",\n  \"specialRequests\": \"Focus on business English and presentation skills\",\n  \"couponCode\": \"WELCOME10\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/simple/course",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"simple",
+						"course"
+					]
+				},
+				"description": "Create a simple course payment and get VNPAY URL. No authentication required."
+			}
+		},
+		{
+			"name": "Create Simple Course Payment (No Coupon)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.smith.test@example.com\",\n  \"phoneNumber\": \"+84912345678\",\n  \"preferredStartDate\": \"2024-03-15\",\n  \"specialRequests\": \"Interested in improving speaking and listening skills\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/simple/course",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"simple",
+						"course"
+					]
+				},
+				"description": "Create a simple course payment without coupon code"
+			}
+		},
+		{
+			"name": "Test Invalid Course ID",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"courseId\": \"invalid-course-id\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"test@example.com\",\n  \"phoneNumber\": \"+84901234567\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/simple/course",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"simple",
+						"course"
+					]
+				},
+				"description": "Test error handling for invalid course ID"
+			}
+		},
+		{
+			"name": "Test Invalid Email",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"invalid-email\",\n  \"phoneNumber\": \"+84901234567\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/simple/course",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"simple",
+						"course"
+					]
+				},
+				"description": "Test email validation error"
+			}
+		},
+		{
+			"name": "Test Invalid Phone Number",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"email\": \"test@example.com\",\n  \"phoneNumber\": \"invalid-phone\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/simple/course",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"simple",
+						"course"
+					]
+				},
+				"description": "Test phone number validation error"
+			}
+		},
+		{
+			"name": "Test Different Coupons",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"firstName\": \"Coupon\",\n  \"lastName\": \"Tester\",\n  \"email\": \"coupon.test@example.com\",\n  \"phoneNumber\": \"+84923456789\",\n  \"couponCode\": \"STUDENT15\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/simple/course",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"simple",
+						"course"
+					]
+				},
+				"description": "Test different coupon codes (STUDENT15, SAVE50K, FIRSTCOURSE, NEWSTUDENT)"
+			}
+		},
+		{
+			"name": "VNPAY Return Handler",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/vnpay/return?vnp_Amount=800000000&vnp_BankCode=NCB&vnp_OrderInfo=Course+payment&vnp_ResponseCode=00&vnp_TransactionNo=13123456&vnp_TxnRef={{orderId}}&vnp_SecureHashType=SHA256&vnp_SecureHash=test",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"vnpay",
+						"return"
+					],
+					"query": [
+						{
+							"key": "vnp_Amount",
+							"value": "800000000",
+							"description": "Amount in VND * 100"
+						},
+						{
+							"key": "vnp_BankCode",
+							"value": "NCB"
+						},
+						{
+							"key": "vnp_OrderInfo",
+							"value": "Course+payment"
+						},
+						{
+							"key": "vnp_ResponseCode",
+							"value": "00",
+							"description": "00 = Success"
+						},
+						{
+							"key": "vnp_TransactionNo",
+							"value": "13123456"
+						},
+						{
+							"key": "vnp_TxnRef",
+							"value": "{{orderId}}"
+						},
+						{
+							"key": "vnp_SecureHashType",
+							"value": "SHA256"
+						},
+						{
+							"key": "vnp_SecureHash",
+							"value": "test"
+						}
+					]
+				},
+				"description": "Test VNPAY return URL (success scenario)"
+			}
+		},
+		{
+			"name": "VNPAY IPN Webhook",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "vnp_Amount",
+							"value": "800000000",
+							"type": "text"
+						},
+						{
+							"key": "vnp_BankCode",
+							"value": "NCB",
+							"type": "text"
+						},
+						{
+							"key": "vnp_OrderInfo",
+							"value": "Course payment",
+							"type": "text"
+						},
+						{
+							"key": "vnp_ResponseCode",
+							"value": "00",
+							"type": "text"
+						},
+						{
+							"key": "vnp_TransactionNo",
+							"value": "13123456",
+							"type": "text"
+						},
+						{
+							"key": "vnp_TxnRef",
+							"value": "{{orderId}}",
+							"type": "text"
+						},
+						{
+							"key": "vnp_SecureHashType",
+							"value": "SHA256",
+							"type": "text"
+						},
+						{
+							"key": "vnp_SecureHash",
+							"value": "test",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/vnpay/ipn",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"vnpay",
+						"ipn"
+					]
+				},
+				"description": "Test VNPAY IPN webhook (payment notification)"
+			}
+		},
+		{
+			"name": "Get Payment Methods",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/payments/methods",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"payments",
+						"methods"
+					]
+				},
+				"description": "Get available payment methods and supported banks"
+			}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "your-course-id-here",
+			"type": "string",
+			"description": "Replace with actual course ID from database"
+		},
+		{
+			"key": "orderId",
+			"value": "your-order-id-here",
+			"type": "string",
+			"description": "Order ID returned from payment creation"
+		}
+	]
+}

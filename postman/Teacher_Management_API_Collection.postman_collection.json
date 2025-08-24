@@ -1,0 +1,1578 @@
+{
+	"info": {
+		"_postman_id": "antoree-teacher-collection",
+		"name": "Antoree Teacher Management API Collection",
+		"description": "Complete Teacher Management API collection for Antoree platform - Teacher profiles, verification, courses, and admin management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "antoree-teacher-api"
+	},
+	"item": [
+		{
+			"name": "Public Teacher Discovery",
+			"item": [
+				{
+					"name": "Get All Teachers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers"
+							]
+						},
+						"description": "Get all approved teachers available for booking"
+					}
+				},
+				{
+					"name": "Search Teachers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/search?search=English&specialties=Business English&minRating=4&page=1&limit=10&sortBy=averageRating&sortOrder=desc",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"search"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "English"
+								},
+								{
+									"key": "specialties",
+									"value": "Business English"
+								},
+								{
+									"key": "minRating",
+									"value": "4"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "sortBy",
+									"value": "averageRating"
+								},
+								{
+									"key": "sortOrder",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Search teachers with advanced filters and sorting"
+					}
+				},
+				{
+					"name": "Browse Teachers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/browse?page=1&limit=12&search=English&specialties=Business English&minRating=4&sortBy=rating",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"browse"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "12"
+								},
+								{
+									"key": "search",
+									"value": "English"
+								},
+								{
+									"key": "specialties",
+									"value": "Business English"
+								},
+								{
+									"key": "minRating",
+									"value": "4"
+								},
+								{
+									"key": "sortBy",
+									"value": "rating"
+								}
+							]
+						},
+						"description": "Main teacher browsing endpoint for students"
+					}
+				},
+				{
+					"name": "Get Featured Teachers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/featured?limit=8",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"featured"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "8"
+								}
+							]
+						},
+						"description": "Get featured teachers for homepage display"
+					}
+				},
+				{
+					"name": "Get Live Teachers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/live",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"live"
+							]
+						},
+						"description": "Get all teachers currently accepting bookings"
+					}
+				},
+				{
+					"name": "Get Teachers by Specialty",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/by-specialty/Business English?limit=20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"by-specialty",
+								"Business English"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Get teachers filtered by specific specialty"
+					}
+				},
+				{
+					"name": "Get Filter Options",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/filters/options",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"filters",
+								"options"
+							]
+						},
+						"description": "Get available filter options for teacher search"
+					}
+				}
+			],
+			"description": "Public teacher discovery endpoints - no authentication required"
+		},
+		{
+			"name": "Teacher Profile Information",
+			"item": [
+				{
+					"name": "Get Teacher by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(200)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.id) {",
+									"        pm.environment.set('teacherId', response.data.id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}"
+							]
+						},
+						"description": "Get teacher basic profile information by ID"
+					}
+				},
+				{
+					"name": "Get Teacher Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"profile"
+							]
+						},
+						"description": "Get comprehensive teacher profile with stats and reviews"
+					}
+				},
+				{
+					"name": "Get Teacher Detailed Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/detailed?startDate=2024-01-15&endDate=2024-01-22",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"detailed"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-01-15"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-01-22"
+								}
+							]
+						},
+						"description": "Get detailed teacher information for booking decision"
+					}
+				},
+				{
+					"name": "Get Teacher Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"stats"
+							]
+						},
+						"description": "Get teacher performance statistics"
+					}
+				},
+				{
+					"name": "Get Teacher Interest Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/interest-info?studentUserId={{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"interest-info"
+							],
+							"query": [
+								{
+									"key": "studentUserId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Get teacher information relevant to student interest"
+					}
+				},
+				{
+					"name": "Get Booking Options",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/booking-options?studentUserId={{userId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"booking-options"
+							],
+							"query": [
+								{
+									"key": "studentUserId",
+									"value": "{{userId}}"
+								}
+							]
+						},
+						"description": "Get available booking options for the teacher"
+					}
+				}
+			],
+			"description": "Teacher profile and information endpoints"
+		},
+		{
+			"name": "Teacher Availability & Scheduling",
+			"item": [
+				{
+					"name": "Get Teacher Availability",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/availability",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"availability"
+							]
+						},
+						"description": "Get teacher's weekly availability schedule"
+					}
+				},
+				{
+					"name": "Get Available Slots",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/available-slots?startDate=2024-01-15&endDate=2024-01-22",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"available-slots"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-01-15"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-01-22"
+								}
+							]
+						},
+						"description": "Get specific available booking slots for date range"
+					}
+				}
+			],
+			"description": "Teacher availability and scheduling information"
+		},
+		{
+			"name": "Teacher Courses",
+			"item": [
+				{
+					"name": "Get Teacher Courses",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"courses"
+							]
+						},
+						"description": "Get all courses offered by the teacher"
+					}
+				}
+			],
+			"description": "Teacher course information"
+		},
+		{
+			"name": "Student Actions on Teachers",
+			"item": [
+				{
+					"name": "Save Teacher",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/save",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"save"
+							]
+						},
+						"description": "Save teacher to favorites for later consideration (Student only)"
+					}
+				}
+			],
+			"description": "Student-specific actions on teacher profiles"
+		},
+		{
+			"name": "Teacher Self-Management",
+			"item": [
+				{
+					"name": "Create Teacher Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": \"{{userId}}\",\n  \"bio\": \"Experienced English teacher with passion for helping students achieve their language goals.\",\n  \"experience\": 5,\n  \"education\": \"Bachelor of Arts in English Literature, University of Cambridge\",\n  \"certifications\": [\"TESOL\", \"CELTA\", \"IELTS Certified\"],\n  \"specialties\": [\"Business English\", \"IELTS Preparation\", \"Conversational English\"],\n  \"hourlyRate\": 25.00,\n  \"timezone\": \"Asia/Ho_Chi_Minh\",\n  \"languages\": [\"English\", \"Vietnamese\"],\n  \"videoIntroUrl\": \"https://youtube.com/watch?v=abc123\",\n  \"responseTime\": 30\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers"
+							]
+						},
+						"description": "Create initial teacher profile (Teacher only)"
+					}
+				},
+				{
+					"name": "Get My Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me"
+							]
+						},
+						"description": "Get current teacher's own profile (Teacher only)"
+					}
+				},
+				{
+					"name": "Get My Stats",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"stats"
+							]
+						},
+						"description": "Get current teacher's statistics (Teacher only)"
+					}
+				},
+				{
+					"name": "Update My Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bio\": \"Updated bio with more experience and new teaching methods.\",\n  \"hourlyRate\": 30.00,\n  \"specialties\": [\"Business English\", \"IELTS Preparation\", \"Conversational English\", \"Academic Writing\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me"
+							]
+						},
+						"description": "Update current teacher's profile (Teacher only)"
+					}
+				}
+			],
+			"description": "Teacher self-management endpoints"
+		},
+		{
+			"name": "Teacher Onboarding & Setup",
+			"item": [
+				{
+					"name": "Setup Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"bio\": \"Experienced English teacher with 5 years of teaching experience specializing in business communication and exam preparation. I help students build confidence in their English skills through personalized lessons.\",\n  \"experience\": 5,\n  \"education\": \"Bachelor of Arts in English Literature, University of Cambridge. TESOL Certification from Trinity College London.\",\n  \"certifications\": [\"TESOL\", \"CELTA\", \"IELTS Certified\"],\n  \"specialties\": [\"Business English\", \"IELTS Preparation\", \"Conversational English\"],\n  \"hourlyRate\": 25.00,\n  \"timezone\": \"Asia/Ho_Chi_Minh\",\n  \"languages\": [\"English\", \"Vietnamese\"],\n  \"videoIntroUrl\": \"https://youtube.com/watch?v=abc123\",\n  \"responseTime\": 30,\n  \"agreeToTerms\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/setup-profile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"setup-profile"
+							]
+						},
+						"description": "Complete profile setup after account creation (Teacher only)"
+					}
+				},
+				{
+					"name": "Get Setup Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/setup-status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"setup-status"
+							]
+						},
+						"description": "Get profile setup and verification status (Teacher only)"
+					}
+				},
+				{
+					"name": "Get Onboarding Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/onboarding-status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"onboarding-status"
+							]
+						},
+						"description": "Get complete onboarding status with progress tracking (Teacher only)"
+					}
+				},
+				{
+					"name": "Go Live",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"confirmReadiness\": true,\n  \"acceptTerms\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/go-live",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"go-live"
+							]
+						},
+						"description": "Make teacher profile live and start accepting bookings (Teacher only)"
+					}
+				},
+				{
+					"name": "Pause Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/pause",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"pause"
+							]
+						},
+						"description": "Pause teacher profile and stop accepting new bookings (Teacher only)"
+					}
+				}
+			],
+			"description": "Teacher onboarding and profile setup workflow"
+		},
+		{
+			"name": "Teacher Verification",
+			"item": [
+				{
+					"name": "Submit Verification",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identityDocument\": \"https://example.com/passport.jpg\",\n  \"educationCertificate\": \"https://example.com/diploma.jpg\",\n  \"teachingCertificates\": [\"https://example.com/tesol.jpg\", \"https://example.com/celta.jpg\"],\n  \"backgroundCheck\": \"https://example.com/background-check.pdf\",\n  \"additionalDocuments\": [\"https://example.com/reference-letter.pdf\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/submit-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"submit-verification"
+							]
+						},
+						"description": "Submit verification documents (Teacher only)"
+					}
+				},
+				{
+					"name": "Get Verification",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"verification"
+							]
+						},
+						"description": "Get submitted verification documents status (Teacher only)"
+					}
+				},
+				{
+					"name": "Resubmit Verification",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"identityDocument\": \"https://example.com/passport-updated.jpg\",\n  \"educationCertificate\": \"https://example.com/diploma-updated.jpg\",\n  \"teachingCertificates\": [\"https://example.com/tesol-updated.jpg\", \"https://example.com/celta-updated.jpg\"],\n  \"backgroundCheck\": \"https://example.com/background-check-updated.pdf\",\n  \"additionalDocuments\": [\"https://example.com/reference-letter-updated.pdf\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/resubmit-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"resubmit-verification"
+							]
+						},
+						"description": "Resubmit verification documents after rejection (Teacher only)"
+					}
+				}
+			],
+			"description": "Teacher verification document management"
+		},
+		{
+			"name": "Teacher Availability Management",
+			"item": [
+				{
+					"name": "Setup Availability and Rates",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"availabilities\": [\n    {\n      \"dayOfWeek\": 1,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 2,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"isActive\": true\n    },\n    {\n      \"dayOfWeek\": 3,\n      \"startTime\": \"09:00\",\n      \"endTime\": \"17:00\",\n      \"isActive\": true\n    }\n  ],\n  \"rates\": [\n    {\n      \"lessonType\": \"TRIAL\",\n      \"duration\": 30,\n      \"price\": 10.00,\n      \"isActive\": true\n    },\n    {\n      \"lessonType\": \"REGULAR\",\n      \"duration\": 60,\n      \"price\": 25.00,\n      \"isActive\": true\n    },\n    {\n      \"lessonType\": \"PACKAGE\",\n      \"duration\": 60,\n      \"price\": 20.00,\n      \"isActive\": true\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/setup-availability-rates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"setup-availability-rates"
+							]
+						},
+						"description": "Setup availability schedule and lesson rates (Teacher only)"
+					}
+				},
+				{
+					"name": "Get Availability and Rates",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/availability-rates",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"availability-rates"
+							]
+						},
+						"description": "Get current availability and rates setup (Teacher only)"
+					}
+				},
+				{
+					"name": "Add My Availability",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dayOfWeek\": 4,\n  \"startTime\": \"10:00\",\n  \"endTime\": \"16:00\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/availability",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"availability"
+							]
+						},
+						"description": "Add new availability slot (Teacher only)"
+					}
+				},
+				{
+					"name": "Get My Availability",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/availability",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"availability"
+							]
+						},
+						"description": "Get current teacher availability schedule (Teacher only)"
+					}
+				},
+				{
+					"name": "Update Rate",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"price\": 30.00,\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/rates/{{rateId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"rates",
+								"{{rateId}}"
+							]
+						},
+						"description": "Update a specific lesson rate (Teacher only)"
+					}
+				}
+			],
+			"description": "Teacher availability and rate management"
+		},
+		{
+			"name": "Teacher Course Management",
+			"item": [
+				{
+					"name": "Create Course",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.id) {",
+									"        pm.environment.set('courseId', response.data.id);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Business English Mastery\",\n  \"description\": \"Comprehensive course covering business communication, presentations, and professional writing.\",\n  \"level\": \"INTERMEDIATE\",\n  \"duration\": 20,\n  \"price\": 400.00,\n  \"curriculum\": [\"Business vocabulary\", \"Email writing\", \"Meeting skills\", \"Presentation techniques\"],\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"courses"
+							]
+						},
+						"description": "Create a new course (Teacher only)"
+					}
+				},
+				{
+					"name": "Get My Courses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/courses",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"courses"
+							]
+						},
+						"description": "Get current teacher's courses (Teacher only)"
+					}
+				},
+				{
+					"name": "Update Course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Advanced Business English Communication\",\n  \"price\": 450.00,\n  \"description\": \"Updated comprehensive course with new modules on digital communication and cross-cultural business practices.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Update existing course (Teacher only)"
+					}
+				},
+				{
+					"name": "Delete Course",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/me/courses/{{courseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"me",
+								"courses",
+								"{{courseId}}"
+							]
+						},
+						"description": "Delete course (Teacher only)"
+					}
+				}
+			],
+			"description": "Teacher course creation and management"
+		},
+		{
+			"name": "Admin Teacher Management",
+			"item": [
+				{
+					"name": "Update Teacher Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"APPROVED\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"status"
+							]
+						},
+						"description": "Update teacher approval status (Admin only)"
+					}
+				},
+				{
+					"name": "Delete Teacher",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}"
+							]
+						},
+						"description": "Delete teacher profile permanently (Admin only)"
+					}
+				},
+				{
+					"name": "Get Pending Verifications",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/pending-verifications",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"pending-verifications"
+							]
+						},
+						"description": "Get all pending teacher verifications (Admin only)"
+					}
+				},
+				{
+					"name": "Review Verification",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"APPROVED\",\n  \"reviewNotes\": \"All documents verified successfully. Welcome to the platform!\",\n  \"approvedAt\": \"2024-01-15T10:30:00.000Z\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/review-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"review-verification"
+							]
+						},
+						"description": "Review and approve/reject teacher verification (Admin only)"
+					}
+				},
+				{
+					"name": "Get Teacher Verification (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"verification"
+							]
+						},
+						"description": "Get teacher verification documents for review (Admin only)"
+					}
+				}
+			],
+			"description": "Admin-only teacher management endpoints"
+		},
+		{
+			"name": "Admin Availability Management",
+			"item": [
+				{
+					"name": "Add Teacher Availability",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"dayOfWeek\": 5,\n  \"startTime\": \"09:00\",\n  \"endTime\": \"15:00\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/availability",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"availability"
+							]
+						},
+						"description": "Add availability for any teacher (Admin only)"
+					}
+				},
+				{
+					"name": "Update Teacher Availability",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"startTime\": \"08:00\",\n  \"endTime\": \"16:00\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/availability/{{availabilityId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"availability",
+								"{{availabilityId}}"
+							]
+						},
+						"description": "Update teacher availability (Admin only)"
+					}
+				},
+				{
+					"name": "Remove Teacher Availability",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {  
+							"raw": "{{baseUrl}}/teachers/{{teacherId}}/availability/{{availabilityId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"teachers",
+								"{{teacherId}}",
+								"availability",
+								"{{availabilityId}}"
+							]
+						},
+						"description": "Remove teacher availability (Admin only)"
+					}
+				}
+			],
+			"description": "Admin teacher availability management"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api",
+			"type": "string",
+			"description": "Base URL for the API"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "Current user ID"
+		},
+		{
+			"key": "teacherId",
+			"value": "",
+			"type": "string",
+			"description": "Teacher ID for testing"
+		},
+		{
+			"key": "courseId",
+			"value": "",
+			"type": "string",
+			"description": "Course ID for testing"
+		},
+		{
+			"key": "rateId",
+			"value": "",
+			"type": "string",
+			"description": "Rate ID for testing"
+		},
+		{
+			"key": "availabilityId",
+			"value": "",
+			"type": "string",
+			"description": "Availability ID for testing"
+		}
+	]
+}

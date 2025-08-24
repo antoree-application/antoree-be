@@ -1,0 +1,454 @@
+{
+  "info": {
+    "name": "Course Payment API - VNPay Integration",
+    "description": "API collection for testing course purchases with VNPay payment gateway",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "{{authToken}}",
+      "type": "string"
+    },
+    {
+      "key": "teacherId",
+      "value": "cm3teacher123def456",
+      "type": "string"
+    },
+    {
+      "key": "courseId",
+      "value": "cm3course123def456",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Course Discovery",
+      "item": [
+        {
+          "name": "Get Teacher Courses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/courses/teacher/{{teacherId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "courses", "teacher", "{{teacherId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Course Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/courses/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["courses", "{{courseId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment Process",
+      "item": [
+        {
+          "name": "Create Course Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('paymentId', response.id);",
+                  "    pm.test('Payment created successfully', function () {",
+                  "        pm.expect(response.status).to.eql('PENDING');",
+                  "        pm.expect(response.coursePurchase).to.not.be.undefined;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preferredStartDate\": \"2024-03-01T09:00:00Z\",\n  \"scheduledLessons\": [\n    \"2024-03-01T09:00:00Z\",\n    \"2024-03-08T09:00:00Z\",\n    \"2024-03-15T09:00:00Z\",\n    \"2024-03-22T09:00:00Z\"\n  ],\n  \"specialRequests\": \"Focus on business presentation skills and vocabulary\",\n  \"couponCode\": \"WELCOME10\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/course/{{courseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "course", "{{courseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create VNPay Payment URL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('VNPay URL created', function () {",
+                  "        pm.expect(response.paymentUrl).to.include('vnpayment.vn');",
+                  "        pm.expect(response.amount).to.be.a('number');",
+                  "    });",
+                  "    console.log('Payment URL: ' + response.paymentUrl);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentId}}/vnpay?bankCode=NCB",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{paymentId}}", "vnpay"],
+              "query": [
+                {
+                  "key": "bankCode",
+                  "value": "NCB"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Simulate VNPay Success Callback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Payment callback processed', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 302]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/vnpay/return?vnp_Amount=800000000&vnp_BankCode=NCB&vnp_ResponseCode=00&vnp_TransactionStatus=00&vnp_TxnRef=ORDER_TEST_001&vnp_TransactionNo=VNP123456789&vnp_SecureHash=test_hash",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "vnpay", "return"],
+              "query": [
+                {
+                  "key": "vnp_Amount",
+                  "value": "800000000"
+                },
+                {
+                  "key": "vnp_BankCode",
+                  "value": "NCB"
+                },
+                {
+                  "key": "vnp_ResponseCode",
+                  "value": "00"
+                },
+                {
+                  "key": "vnp_TransactionStatus",
+                  "value": "00"
+                },
+                {
+                  "key": "vnp_TxnRef",
+                  "value": "ORDER_TEST_001"
+                },
+                {
+                  "key": "vnp_TransactionNo",
+                  "value": "VNP123456789"
+                },
+                {
+                  "key": "vnp_SecureHash",
+                  "value": "test_hash"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payment Verification",
+      "item": [
+        {
+          "name": "Get Payment Result",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('Payment completed', function () {",
+                  "        pm.expect(response.success).to.be.true;",
+                  "        pm.expect(response.bookings).to.be.an('array');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/result/{{paymentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "result", "{{paymentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Student Bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bookings/student",
+              "host": ["{{baseUrl}}"],
+              "path": ["bookings", "student"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/history?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "history"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "Course Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Returns 404 for non-existent course', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preferredStartDate\": \"2024-03-01T09:00:00Z\",\n  \"specialRequests\": \"Test course not found\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/course/non-existent-course-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "course", "non-existent-course-id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "VNPay Failed Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/vnpay/return?vnp_Amount=800000000&vnp_BankCode=NCB&vnp_ResponseCode=24&vnp_TransactionStatus=02&vnp_TxnRef=ORDER_FAILED_001&vnp_TransactionNo=VNP987654321&vnp_SecureHash=test_hash",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "vnpay", "return"],
+              "query": [
+                {
+                  "key": "vnp_Amount",
+                  "value": "800000000"
+                },
+                {
+                  "key": "vnp_BankCode",
+                  "value": "NCB"
+                },
+                {
+                  "key": "vnp_ResponseCode",
+                  "value": "24",
+                  "description": "Customer cancelled payment"
+                },
+                {
+                  "key": "vnp_TransactionStatus",
+                  "value": "02"
+                },
+                {
+                  "key": "vnp_TxnRef",
+                  "value": "ORDER_FAILED_001"
+                },
+                {
+                  "key": "vnp_TransactionNo",
+                  "value": "VNP987654321"
+                },
+                {
+                  "key": "vnp_SecureHash",
+                  "value": "test_hash"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Course Management",
+      "item": [
+        {
+          "name": "Get Available Payment Methods",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/methods",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "methods"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Calculate Custom Package Price",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numberOfLessons\": 15,\n  \"basePrice\": 500000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/calculate-custom-package",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "calculate-custom-package"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Apply Coupon Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"couponCode\": \"WELCOME10\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentId}}/coupon",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{paymentId}}", "coupon"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

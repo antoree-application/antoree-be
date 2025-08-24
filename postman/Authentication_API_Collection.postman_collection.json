@@ -1,0 +1,960 @@
+{
+	"info": {
+		"_postman_id": "antoree-auth-collection",
+		"name": "Antoree Authentication API Collection",
+		"description": "Authentication endpoints for Antoree platform - User registration, login, and session management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "antoree-auth-api"
+	},
+	"item": [
+		{
+			"name": "User Registration & Login",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"phone\": \"+1234567890\",\n  \"role\": \"TEACHER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user account with role specification (TEACHER, STUDENT, ADMIN)"
+					}
+				},
+				{
+					"name": "Register Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"phone\": \"+1234567891\",\n  \"role\": \"STUDENT\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new student account"
+					}
+				},
+				{
+					"name": "Register Teacher",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher.new@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"Michael\",\n  \"lastName\": \"Johnson\",\n  \"phone\": \"+1234567892\",\n  \"role\": \"TEACHER\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new teacher account"
+					}
+				},
+				{
+					"name": "Register Student Account (Specific)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data) {",
+									"        pm.environment.set('studentAccountId', response.data.id);",
+									"        pm.environment.set('studentSpecificId', response.data.studentId);",
+									"        console.log('Student Account Created - ID:', response.data.id);",
+									"        console.log('Student Profile ID:', response.data.studentId);",
+									"        console.log('English Level:', response.data.englishLevel);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student.specific@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Johnson\",\n  \"phone\": \"+1234567893\",\n  \"englishLevel\": \"INTERMEDIATE\",\n  \"learningGoals\": \"I want to improve my business English and conversation skills for work\",\n  \"timezone\": \"America/New_York\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/student",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"student"
+							]
+						},
+						"description": "Register a new student account with student-specific profile data. Creates records in both users and students tables."
+					}
+				},
+				{
+					"name": "Register Teacher Account (Specific)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data) {",
+									"        pm.environment.set('teacherAccountId', response.data.id);",
+									"        pm.environment.set('teacherSpecificId', response.data.teacherId);",
+									"        console.log('Teacher Account Created - ID:', response.data.id);",
+									"        console.log('Teacher Profile ID:', response.data.teacherId);",
+									"        console.log('Teacher Status:', response.data.status);",
+									"        console.log('Profile Completed:', response.data.profileCompleted);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher.specific@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"David\",\n  \"lastName\": \"Wilson\",\n  \"phone\": \"+1234567894\",\n  \"bio\": \"Experienced English teacher with 8 years of online teaching experience. I specialize in business English, IELTS preparation, and conversation skills. I have helped over 500 students achieve their language learning goals.\",\n  \"experience\": 8,\n  \"education\": \"Master's degree in Applied Linguistics, Bachelor's degree in English Literature\",\n  \"certifications\": [\"TEFL\", \"TESOL\", \"CELTA\", \"IELTS Teacher Training\"],\n  \"specialties\": [\"Business English\", \"IELTS Preparation\", \"Conversation Skills\", \"Academic Writing\", \"Pronunciation\"],\n  \"hourlyRate\": 35.00,\n  \"timezone\": \"Europe/London\",\n  \"languages\": [\"English\", \"Spanish\"],\n  \"videoIntroUrl\": \"https://youtube.com/watch?v=teacher-intro-example\",\n  \"responseTime\": 120\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/teacher",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"teacher"
+							]
+						},
+						"description": "Register a new teacher account with teacher-specific profile data. Creates records in both users and teachers tables. Teacher status will be PENDING initially."
+					}
+				},
+				{
+					"name": "Register Student - Minimal Data",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student.minimal@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/student",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"student"
+							]
+						},
+						"description": "Register student with minimal required data (uses defaults for optional fields)"
+					}
+				},
+				{
+					"name": "Register Teacher - Minimal Data",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher.minimal@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"hourlyRate\": 20.00,\n  \"languages\": [\"English\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/teacher",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"teacher"
+							]
+						},
+						"description": "Register teacher with minimal required data"
+					}
+				},
+				{
+					"name": "Register Teacher - Validation Error (No English)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher.error@example.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"Teacher\",\n  \"hourlyRate\": 25.00,\n  \"languages\": [\"Spanish\", \"French\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/teacher",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"teacher"
+							]
+						},
+						"description": "Test validation error - Teacher registration without English in languages (should fail with 400)"
+					}
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(200)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.accessToken) {",
+									"        pm.environment.set('authToken', response.data.accessToken);",
+									"        pm.environment.set('userId', response.data.user.id);",
+									"        pm.environment.set('userRole', response.data.user.role);",
+									"        console.log('Token saved:', response.data.accessToken);",
+									"        console.log('User Role:', response.data.user.role);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher@example.com\",\n  \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with email and password. Returns JWT token and user information."
+					}
+				},
+				{
+					"name": "Login as Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(200)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data && response.data.accessToken) {",
+									"        pm.environment.set('studentAuthToken', response.data.accessToken);",
+									"        pm.environment.set('studentUserId', response.data.user.id);",
+									"        console.log('Student Token saved:', response.data.accessToken);",
+									"    }",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student@example.com\",\n  \"password\": \"Password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login as student user"
+					}
+				}
+			],
+			"description": "User registration and login endpoints for all user roles"
+		},
+		{
+			"name": "Role-Specific Account Creation",
+			"item": [
+				{
+					"name": "Create Student Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data) {",
+									"        pm.environment.set('newStudentId', response.data.id);",
+									"        pm.environment.set('newStudentProfileId', response.data.studentId);",
+									"        console.log('✅ Student Account Created Successfully');",
+									"        console.log('User ID:', response.data.id);",
+									"        console.log('Student Profile ID:', response.data.studentId);",
+									"        console.log('Email:', response.data.email);",
+									"        console.log('English Level:', response.data.englishLevel);",
+									"        console.log('Full Name:', response.data.fullName);",
+									"    }",
+									"} else {",
+									"    console.log('❌ Student Account Creation Failed');",
+									"    console.log('Status:', pm.response.code);",
+									"    console.log('Response:', pm.response.text());",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student.new@antoree.com\",\n  \"password\": \"StudentPass123\",\n  \"firstName\": \"Emma\",\n  \"lastName\": \"Thompson\",\n  \"phone\": \"+1555123456\",\n  \"englishLevel\": \"INTERMEDIATE\",\n  \"learningGoals\": \"I want to improve my business English communication skills for my career advancement. My goal is to feel confident in meetings and presentations.\",\n  \"timezone\": \"America/Los_Angeles\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/student",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"student"
+							]
+						},
+						"description": "Creates a new student account with student-specific profile data. Saves to both 'users' and 'students' tables."
+					}
+				},
+				{
+					"name": "Create Teacher Account",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.to.have.status(201)) {",
+									"    const response = pm.response.json();",
+									"    if (response.data) {",
+									"        pm.environment.set('newTeacherId', response.data.id);",
+									"        pm.environment.set('newTeacherProfileId', response.data.teacherId);",
+									"        console.log('✅ Teacher Account Created Successfully');",
+									"        console.log('User ID:', response.data.id);",
+									"        console.log('Teacher Profile ID:', response.data.teacherId);",
+									"        console.log('Email:', response.data.email);",
+									"        console.log('Status:', response.data.status);",
+									"        console.log('Profile Completed:', response.data.profileCompleted);",
+									"        console.log('Hourly Rate:', response.data.hourlyRate);",
+									"    }",
+									"} else {",
+									"    console.log('❌ Teacher Account Creation Failed');",
+									"    console.log('Status:', pm.response.code);",
+									"    console.log('Response:', pm.response.text());",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher.sarah@antoree.com\",\n  \"password\": \"TeacherPass123\",\n  \"firstName\": \"Sarah\",\n  \"lastName\": \"Williams\",\n  \"phone\": \"+1555987654\",\n  \"bio\": \"Passionate English teacher with 10+ years of experience teaching students from beginner to advanced levels. I specialize in business English, IELTS preparation, and conversational fluency. My teaching approach focuses on practical communication skills and building confidence in real-world scenarios.\",\n  \"experience\": 10,\n  \"education\": \"Master's in TESOL from University of Cambridge, Bachelor's in English Literature from Oxford University\",\n  \"certifications\": [\"TESOL\", \"IELTS Teacher Training\", \"Business English Specialist\", \"Cambridge CELTA\"],\n  \"specialties\": [\"Business English\", \"IELTS Preparation\", \"Conversational English\", \"Academic Writing\", \"Job Interview Preparation\", \"Pronunciation Coaching\"],\n  \"hourlyRate\": 42.00,\n  \"timezone\": \"Europe/London\",\n  \"languages\": [\"English\", \"French\", \"Spanish\"],\n  \"videoIntroUrl\": \"https://youtube.com/watch?v=sarah-teacher-intro\",\n  \"responseTime\": 60\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/teacher",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"teacher"
+							]
+						},
+						"description": "Creates a new teacher account with teacher-specific profile data. Saves to both 'users' and 'teachers' tables. Initial status is PENDING."
+					}
+				},
+				{
+					"name": "Create Student - Minimal Data",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student.minimal@antoree.com\",\n  \"password\": \"MinimalPass123\",\n  \"firstName\": \"Alex\",\n  \"lastName\": \"Chen\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/student",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"student"
+							]
+						},
+						"description": "Create student account with only required fields (uses defaults for optional fields)"
+					}
+				},
+				{
+					"name": "Create Teacher - Minimal Data",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher.minimal@antoree.com\",\n  \"password\": \"MinimalPass123\",\n  \"firstName\": \"Jordan\",\n  \"lastName\": \"Miller\",\n  \"hourlyRate\": 18.50,\n  \"languages\": [\"English\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/teacher",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"teacher"
+							]
+						},
+						"description": "Create teacher account with only required fields"
+					}
+				},
+				{
+					"name": "Test Validation - Teacher Without English",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher.invalid@antoree.com\",\n  \"password\": \"InvalidPass123\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"Teacher\",\n  \"hourlyRate\": 25.00,\n  \"languages\": [\"Spanish\", \"French\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/teacher",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"teacher"
+							]
+						},
+						"description": "❌ Test validation error - Should fail because English is not in languages array"
+					}
+				},
+				{
+					"name": "Test Validation - Duplicate Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"student.new@antoree.com\",\n  \"password\": \"DuplicatePass123\",\n  \"firstName\": \"Duplicate\",\n  \"lastName\": \"User\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register/student",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"register",
+								"student"
+							]
+						},
+						"description": "❌ Test duplicate email validation - Should fail with 409 Conflict if first student was created"
+					}
+				}
+			],
+			"description": "Endpoints for creating role-specific accounts with proper database relationships"
+		},
+		{
+			"name": "Session Management",
+			"item": [
+				{
+					"name": "Get Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get current authenticated user information"
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/refresh",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Refresh access token using refresh token"
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout current user and invalidate token"
+					}
+				}
+			],
+			"description": "Session management and token-related endpoints"
+		},
+		{
+			"name": "Password Management",
+			"item": [
+				{
+					"name": "Request Password Reset",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/forgot-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"forgot-password"
+							]
+						},
+						"description": "Request password reset email"
+					}
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"reset-token-from-email\",\n  \"newPassword\": \"NewPassword123\",\n  \"confirmPassword\": \"NewPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/reset-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"reset-password"
+							]
+						},
+						"description": "Reset password using token from email"
+					}
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"currentPassword\": \"Password123\",\n  \"newPassword\": \"NewPassword123\",\n  \"confirmPassword\": \"NewPassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/change-password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"change-password"
+							]
+						},
+						"description": "Change password for authenticated user"
+					}
+				}
+			],
+			"description": "Password reset and change functionality"
+		},
+		{
+			"name": "Account Verification",
+			"item": [
+				{
+					"name": "Send Verification Email",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/send-verification",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"send-verification"
+							]
+						},
+						"description": "Send email verification link to user"
+					}
+				},
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/verify-email?token=verification-token-from-email",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"verify-email"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "verification-token-from-email"
+								}
+							]
+						},
+						"description": "Verify email address using token from email"
+					}
+				}
+			],
+			"description": "Email verification endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api",
+			"type": "string",
+			"description": "Base URL for the API"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT authentication token"
+		},
+		{
+			"key": "studentAuthToken",
+			"value": "",
+			"type": "string",
+			"description": "Student JWT authentication token"
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "string",
+			"description": "JWT refresh token"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string",
+			"description": "Current user ID"
+		},
+		{
+			"key": "studentUserId",
+			"value": "",
+			"type": "string",
+			"description": "Student user ID"
+		},
+		{
+			"key": "userRole",
+			"value": "",
+			"type": "string",
+			"description": "Current user role"
+		},
+		{
+			"key": "studentAccountId",
+			"value": "",
+			"type": "string",
+			"description": "Student account user ID from specific registration"
+		},
+		{
+			"key": "studentSpecificId",
+			"value": "",
+			"type": "string",
+			"description": "Student profile ID from students table"
+		},
+		{
+			"key": "teacherAccountId",
+			"value": "",
+			"type": "string",
+			"description": "Teacher account user ID from specific registration"
+		},
+		{
+			"key": "teacherSpecificId",
+			"value": "",
+			"type": "string",
+			"description": "Teacher profile ID from teachers table"
+		},
+		{
+			"key": "newStudentId",
+			"value": "",
+			"type": "string",
+			"description": "Newly created student user ID"
+		},
+		{
+			"key": "newStudentProfileId",
+			"value": "",
+			"type": "string",
+			"description": "Newly created student profile ID"
+		},
+		{
+			"key": "newTeacherId",
+			"value": "",
+			"type": "string",
+			"description": "Newly created teacher user ID"
+		},
+		{
+			"key": "newTeacherProfileId",
+			"value": "",
+			"type": "string",
+			"description": "Newly created teacher profile ID"
+		}
+	]
+}

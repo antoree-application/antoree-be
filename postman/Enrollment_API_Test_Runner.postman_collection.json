@@ -1,0 +1,897 @@
+{
+	"info": {
+		"_postman_id": "enrollment-test-runner",
+		"name": "Enrollment API Test Runner",
+		"description": "Automated test collection for Enrollment API endpoints with role-based access testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "enrollment-test-runner"
+	},
+	"item": [
+		{
+			"name": "Setup - Authentication",
+			"item": [
+				{
+					"name": "Login as Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Admin login successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('accessToken');",
+									"    pm.environment.set('authToken', response.data.accessToken);",
+									"    pm.environment.set('currentUserId', response.data.user.id);",
+									"    pm.environment.set('currentUserRole', 'ADMIN');",
+									"    console.log('✅ Admin authenticated successfully');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login as Student",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Student login successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('accessToken');",
+									"    pm.environment.set('studentAuthToken', response.data.accessToken);",
+									"    if (response.data.user.student) {",
+									"        pm.environment.set('studentId', response.data.user.student.id);",
+									"    }",
+									"    console.log('✅ Student authenticated successfully');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{studentEmail}}\",\n  \"password\": \"{{studentPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "Login as Teacher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Teacher login successful', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('accessToken');",
+									"    pm.environment.set('teacherAuthToken', response.data.accessToken);",
+									"    if (response.data.user.teacher) {",
+									"        pm.environment.set('teacherId', response.data.user.teacher.id);",
+									"    }",
+									"    console.log('✅ Teacher authenticated successfully');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"{{teacherEmail}}\",\n  \"password\": \"{{teacherPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Test Student Enrollments",
+			"item": [
+				{
+					"name": "Get Student Enrollments (As Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Admin can access student enrollments', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('array');",
+									"    console.log(`📊 Found ${response.data.length} enrollments for student`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/student/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"student",
+								"{{studentId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Student Enrollments (As Student - Own Data)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('studentAuthToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Student can access own enrollments', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('array');",
+									"    console.log(`📊 Student found ${response.data.length} own enrollments`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/student/{{studentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"student",
+								"{{studentId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Student Enrollments by Status",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Can filter enrollments by status', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('array');",
+									"    ",
+									"    // Verify all returned enrollments have ACTIVE status",
+									"    response.data.forEach(enrollment => {",
+									"        pm.expect(enrollment.status).to.equal('ACTIVE');",
+									"    });",
+									"    ",
+									"    console.log(`📊 Found ${response.data.length} ACTIVE enrollments`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/student/{{studentId}}?status=ACTIVE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"student",
+								"{{studentId}}"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Test Teacher Enrollments",
+			"item": [
+				{
+					"name": "Get Teacher Course Enrollments (As Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Admin can access teacher course enrollments', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('array');",
+									"    console.log(`📊 Found ${response.data.length} enrollments for teacher's courses`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/teacher/{{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"teacher",
+								"{{teacherId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Teacher Course Enrollments (As Teacher - Own Courses)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('teacherAuthToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Teacher can access own course enrollments', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('array');",
+									"    console.log(`📊 Teacher found ${response.data.length} enrollments in own courses`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/teacher/{{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"teacher",
+								"{{teacherId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Teacher Course Enrollments with Filters",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Can filter teacher enrollments by course and status', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('array');",
+									"    ",
+									"    // Verify filtering works",
+									"    response.data.forEach(enrollment => {",
+									"        pm.expect(enrollment.courseId).to.equal(pm.environment.get('courseId'));",
+									"        pm.expect(enrollment.status).to.equal('ACTIVE');",
+									"    });",
+									"    ",
+									"    console.log(`📊 Found ${response.data.length} filtered enrollments`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/teacher/{{teacherId}}?courseId={{courseId}}&status=ACTIVE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"teacher",
+								"{{teacherId}}"
+							],
+							"query": [
+								{
+									"key": "courseId",
+									"value": "{{courseId}}"
+								},
+								{
+									"key": "status",
+									"value": "ACTIVE"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Test Enrollment Details",
+			"item": [
+				{
+					"name": "Get Enrollment by ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Can retrieve enrollment by ID', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('object');",
+									"    pm.expect(response.data).to.have.property('id');",
+									"    pm.expect(response.data).to.have.property('student');",
+									"    pm.expect(response.data).to.have.property('course');",
+									"    pm.expect(response.data).to.have.property('payment');",
+									"    console.log(`📋 Retrieved enrollment: ${response.data.id}`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/{{enrollmentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"{{enrollmentId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Enrollment by Invalid ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Returns 404 for invalid enrollment ID', function () {",
+									"    pm.response.to.have.status(404);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.false;",
+									"    console.log('✅ Correctly handled invalid enrollment ID');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/invalid-enrollment-id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"invalid-enrollment-id"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Enrollment by Payment ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Can retrieve enrollment by payment ID', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.be.an('object');",
+									"    pm.expect(response.data.paymentId).to.equal(pm.environment.get('paymentId'));",
+									"    console.log(`📋 Retrieved enrollment by payment ID: ${response.data.id}`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/payment/{{paymentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"payment",
+								"{{paymentId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Test Admin Statistics",
+			"item": [
+				{
+					"name": "Get Enrollment Statistics (As Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Admin can access enrollment statistics', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('total');",
+									"    pm.expect(response.data).to.have.property('active');",
+									"    pm.expect(response.data).to.have.property('completed');",
+									"    pm.expect(response.data).to.have.property('cancelled');",
+									"    console.log(`📊 Statistics - Total: ${response.data.total}, Active: ${response.data.active}`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"stats"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Statistics Access Denied (As Student)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('studentAuthToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Student cannot access admin statistics', function () {",
+									"    pm.response.to.have.status(403);",
+									"    console.log('✅ Correctly denied student access to admin statistics');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"stats"
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Analytics Overview (As Admin)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.request.headers.upsert({",
+									"    key: 'Authorization',",
+									"    value: 'Bearer ' + pm.environment.get('authToken')",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Admin can access analytics overview', function () {",
+									"    pm.response.to.have.status(200);",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"    pm.expect(response.data).to.have.property('totalEnrollments');",
+									"    pm.expect(response.data).to.have.property('activeEnrollments');",
+									"    pm.expect(response.data).to.have.property('completedEnrollments');",
+									"    pm.expect(response.data).to.have.property('monthlyEnrollments');",
+									"    pm.expect(response.data).to.have.property('revenue');",
+									"    console.log(`📊 Analytics - Revenue: ${response.data.revenue}, Monthly: ${response.data.monthlyEnrollments}`);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/analytics/overview",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"analytics",
+								"overview"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Test Authorization & Edge Cases",
+			"item": [
+				{
+					"name": "Access Without Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Returns 401 when no auth token provided', function () {",
+									"    pm.response.to.have.status(401);",
+									"    console.log('✅ Correctly rejected request without auth token');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"stats"
+							]
+						}
+					}
+				},
+				{
+					"name": "Access with Invalid Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Returns 401 for invalid auth token', function () {",
+									"    pm.response.to.have.status(401);",
+									"    console.log('✅ Correctly rejected invalid auth token');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer invalid-token-here",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/enrollments/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"enrollments",
+								"stats"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global pre-request script",
+					"console.log(`🚀 Starting: ${pm.info.requestName}`);",
+					"",
+					"// Set default headers",
+					"pm.request.headers.add({",
+					"    key: 'Content-Type',",
+					"    value: 'application/json'",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"",
+					"// Basic response structure validation",
+					"pm.test('Response time is acceptable', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+					"});",
+					"",
+					"// Log response status",
+					"console.log(`📥 Response: ${pm.response.status} ${pm.response.code} (${pm.response.responseTime}ms)`);",
+					"",
+					"// Parse and validate JSON structure",
+					"if (pm.response.headers.get('Content-Type')?.includes('application/json')) {",
+					"    try {",
+					"        const response = pm.response.json();",
+					"        pm.test('Response has valid JSON structure', function () {",
+					"            pm.expect(response).to.be.an('object');",
+					"            pm.expect(response).to.have.property('success');",
+					"            pm.expect(response).to.have.property('message');",
+					"        });",
+					"    } catch (e) {",
+					"        pm.test('Response should be valid JSON', function () {",
+					"            pm.expect.fail('Response is not valid JSON');",
+					"        });",
+					"    }",
+					"}"
+				]
+			}
+		}
+	]
+}

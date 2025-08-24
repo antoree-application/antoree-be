@@ -1,0 +1,984 @@
+{
+	"info": {
+		"_postman_id": "momo-payment-api-collection",
+		"name": "MoMo Payment API Collection",
+		"description": "Complete API collection for MoMo payment integration in Antoree platform. Includes course payment, webhooks, and cache management endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12345678"
+	},
+	"item": [
+		{
+			"name": "Payment Methods",
+			"item": [
+				{
+					"name": "Get Available Payment Methods",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/methods",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"methods"
+							]
+						},
+						"description": "Get list of available payment methods including MoMo configuration and limits"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/payments/methods",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"methods"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": \"momo\",\n    \"name\": \"MoMo E-Wallet\",\n    \"description\": \"Pay with MoMo e-wallet\",\n    \"logo\": \"https://developers.momo.vn/v3/assets/images/square-logo.svg\",\n    \"enabled\": true,\n    \"minAmount\": 1000,\n    \"maxAmount\": 20000000,\n    \"currency\": \"VND\"\n  }\n]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Course Payment",
+			"item": [
+				{
+					"name": "Create Simple Course Payment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response has payment URL\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('paymentUrl');",
+									"    pm.expect(jsonData).to.have.property('paymentId');",
+									"    pm.expect(jsonData).to.have.property('orderId');",
+									"});",
+									"",
+									"// Store payment data for webhook testing",
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set('payment_id', jsonData.paymentId);",
+									"    pm.environment.set('order_id', jsonData.orderId);",
+									"    pm.environment.set('payment_amount', jsonData.amount);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate random email for guest payment",
+									"const timestamp = Date.now();",
+									"const randomEmail = `student${timestamp}@example.com`;",
+									"pm.environment.set('test_email', randomEmail);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "User-Agent",
+								"value": "Postman/MoMo-Payment-Test"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{course_id}}\",\n  \"firstName\": \"{{student_first_name}}\",\n  \"lastName\": \"{{student_last_name}}\",\n  \"email\": \"{{test_email}}\",\n  \"phoneNumber\": \"{{student_phone}}\",\n  \"preferredStartDate\": \"{{preferred_start_date}}\",\n  \"specialRequests\": \"{{special_requests}}\",\n  \"couponCode\": \"{{coupon_code}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/simple/course",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"simple",
+								"course"
+							]
+						},
+						"description": "Create a simple course payment for guest or registered users. Returns MoMo payment URL for completing the transaction."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courseId\": \"course123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+84901234567\",\n  \"preferredStartDate\": \"2025-09-01T09:00:00Z\",\n  \"specialRequests\": \"Prefer morning classes\",\n  \"couponCode\": \"WELCOME10\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/payments/simple/course",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"simple",
+										"course"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"paymentUrl\": \"https://test-payment.momo.vn/v2/gateway/pay?t=TU9NT0VfV0VIUF9QQVlfVE9LRU4\",\n  \"paymentId\": \"cm3payment123def456\",\n  \"orderId\": \"PAY123_1708012345_123\",\n  \"amount\": 4500000,\n  \"course\": {\n    \"id\": \"course123\",\n    \"name\": \"English Conversation Course\",\n    \"description\": \"Improve your English speaking skills\",\n    \"price\": \"5000000\",\n    \"totalLessons\": 20,\n    \"duration\": 60,\n    \"teacher\": {\n      \"id\": \"teacher123\",\n      \"name\": \"Sarah Johnson\",\n      \"avatar\": \"https://example.com/avatar.jpg\"\n    }\n  },\n  \"student\": {\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"phoneNumber\": \"+84901234567\",\n    \"isNewUser\": true\n  }\n}"
+						},
+						{
+							"name": "Course Not Found",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"courseId\": \"invalid-course-id\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+84901234567\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/payments/simple/course",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"simple",
+										"course"
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 404,\n  \"message\": \"Course with ID invalid-course-id not found\",\n  \"error\": \"Not Found\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "MoMo Webhooks",
+			"item": [
+				{
+					"name": "MoMo Payment Webhook",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response contains success code\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('RspCode');",
+									"    pm.expect(jsonData).to.have.property('Message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partnerCode\": \"MOMO\",\n  \"orderId\": \"{{order_id}}\",\n  \"requestId\": \"MOMO{{$timestamp}}\",\n  \"amount\": {{payment_amount}},\n  \"orderInfo\": \"Course payment test\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": {{$timestamp}},\n  \"resultCode\": 0,\n  \"message\": \"Successful.\",\n  \"payType\": \"qr\",\n  \"responseTime\": {{$timestamp}},\n  \"extraData\": \"\",\n  \"signature\": \"test_signature_{{$timestamp}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/webhook/momo",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"webhook",
+								"momo"
+							]
+						},
+						"description": "MoMo webhook endpoint for payment success notifications. Called by MoMo when payment is completed."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"partnerCode\": \"MOMO\",\n  \"orderId\": \"PAY123_1708012345_123\",\n  \"requestId\": \"MOMO1708012345\",\n  \"amount\": 5000000,\n  \"orderInfo\": \"Course payment: English Conversation Course by John Doe\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": 1708012345,\n  \"resultCode\": 0,\n  \"message\": \"Successful.\",\n  \"payType\": \"qr\",\n  \"responseTime\": 1708012345000,\n  \"extraData\": \"\",\n  \"signature\": \"test_signature_1708012345\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/payments/webhook/momo",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"webhook",
+										"momo"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"RspCode\": \"00\",\n  \"Message\": \"Confirm Success\"\n}"
+						},
+						{
+							"name": "Failed Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"partnerCode\": \"MOMO\",\n  \"orderId\": \"invalid-order\",\n  \"requestId\": \"MOMO1708012345\",\n  \"amount\": 5000000,\n  \"orderInfo\": \"Invalid payment\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": 1708012345,\n  \"resultCode\": 1000,\n  \"message\": \"Transaction failed\",\n  \"payType\": \"qr\",\n  \"responseTime\": 1708012345000,\n  \"extraData\": \"\",\n  \"signature\": \"invalid_signature\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/payments/webhook/momo",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"webhook",
+										"momo"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"RspCode\": \"01\",\n  \"Message\": \"Confirm Fail\"\n}"
+						}
+					]
+				},
+				{
+					"name": "MoMo Return URL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/payments/webhook/momo/return?partnerCode=MOMO&orderId={{order_id}}&requestId=MOMO{{$timestamp}}&amount={{payment_amount}}&orderInfo=Course%20payment%20test&orderType=momo_wallet&transId={{$timestamp}}&resultCode=0&message=Successful.&payType=qr&responseTime={{$timestamp}}&extraData=&signature=test_signature_{{$timestamp}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"webhook",
+								"momo",
+								"return"
+							],
+							"query": [
+								{
+									"key": "partnerCode",
+									"value": "MOMO"
+								},
+								{
+									"key": "orderId",
+									"value": "{{order_id}}"
+								},
+								{
+									"key": "requestId",
+									"value": "MOMO{{$timestamp}}"
+								},
+								{
+									"key": "amount",
+									"value": "{{payment_amount}}"
+								},
+								{
+									"key": "orderInfo",
+									"value": "Course%20payment%20test"
+								},
+								{
+									"key": "orderType",
+									"value": "momo_wallet"
+								},
+								{
+									"key": "transId",
+									"value": "{{$timestamp}}"
+								},
+								{
+									"key": "resultCode",
+									"value": "0"
+								},
+								{
+									"key": "message",
+									"value": "Successful."
+								},
+								{
+									"key": "payType",
+									"value": "qr"
+								},
+								{
+									"key": "responseTime",
+									"value": "{{$timestamp}}"
+								},
+								{
+									"key": "extraData",
+									"value": ""
+								},
+								{
+									"key": "signature",
+									"value": "test_signature_{{$timestamp}}"
+								}
+							]
+						},
+						"description": "MoMo return URL handler. User is redirected here after completing payment on MoMo interface."
+					},
+					"response": [
+						{
+							"name": "Success Redirect",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/payments/webhook/momo/return?partnerCode=MOMO&orderId=PAY123_1708012345_123&requestId=MOMO1708012345&amount=5000000&orderInfo=Course%20payment%20test&orderType=momo_wallet&transId=1708012345&resultCode=0&message=Successful.&payType=qr&responseTime=1708012345000&extraData=&signature=test_signature_1708012345",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"webhook",
+										"momo",
+										"return"
+									],
+									"query": [
+										{
+											"key": "partnerCode",
+											"value": "MOMO"
+										},
+										{
+											"key": "orderId",
+											"value": "PAY123_1708012345_123"
+										},
+										{
+											"key": "requestId",
+											"value": "MOMO1708012345"
+										},
+										{
+											"key": "amount",
+											"value": "5000000"
+										},
+										{
+											"key": "orderInfo",
+											"value": "Course%20payment%20test"
+										},
+										{
+											"key": "orderType",
+											"value": "momo_wallet"
+										},
+										{
+											"key": "transId",
+											"value": "1708012345"
+										},
+										{
+											"key": "resultCode",
+											"value": "0"
+										},
+										{
+											"key": "message",
+											"value": "Successful."
+										},
+										{
+											"key": "payType",
+											"value": "qr"
+										},
+										{
+											"key": "responseTime",
+											"value": "1708012345000"
+										},
+										{
+											"key": "extraData",
+											"value": ""
+										},
+										{
+											"key": "signature",
+											"value": "test_signature_1708012345"
+										}
+									]
+								}
+							},
+							"status": "Found",
+							"code": 302,
+							"_postman_previewlanguage": "html",
+							"header": [
+								{
+									"key": "Location",
+									"value": "http://localhost:3000/payment/success?paymentId=cm3payment123def456"
+								}
+							],
+							"cookie": [],
+							"body": "<!DOCTYPE html>\n<html>\n<head>\n<title>Redirecting...</title>\n</head>\n<body>\n<p>Redirecting to success page...</p>\n</body>\n</html>"
+						}
+					]
+				},
+				{
+					"name": "MoMo IPN (Instant Payment Notification)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partnerCode\": \"MOMO\",\n  \"orderId\": \"{{order_id}}\",\n  \"requestId\": \"MOMO{{$timestamp}}\",\n  \"amount\": {{payment_amount}},\n  \"orderInfo\": \"Course payment test\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": {{$timestamp}},\n  \"resultCode\": 0,\n  \"message\": \"Successful.\",\n  \"payType\": \"qr\",\n  \"responseTime\": {{$timestamp}},\n  \"extraData\": \"\",\n  \"signature\": \"test_signature_{{$timestamp}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/payments/momo/ipn",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"momo",
+								"ipn"
+							]
+						},
+						"description": "MoMo IPN (Instant Payment Notification) endpoint. Alternative webhook endpoint for payment notifications."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"partnerCode\": \"MOMO\",\n  \"orderId\": \"PAY123_1708012345_123\",\n  \"requestId\": \"MOMO1708012345\",\n  \"amount\": 5000000,\n  \"orderInfo\": \"Course payment: English Conversation Course by John Doe\",\n  \"orderType\": \"momo_wallet\",\n  \"transId\": 1708012345,\n  \"resultCode\": 0,\n  \"message\": \"Successful.\",\n  \"payType\": \"qr\",\n  \"responseTime\": 1708012345000,\n  \"extraData\": \"\",\n  \"signature\": \"test_signature_1708012345\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/payments/momo/ipn",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"momo",
+										"ipn"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"RspCode\": \"00\",\n  \"Message\": \"Confirm Success\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Cache Management (Admin)",
+			"item": [
+				{
+					"name": "Get Cache Statistics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/cache/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"stats"
+							]
+						},
+						"description": "Get payment cache statistics. Requires admin authentication."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/payments/cache/stats",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"cache",
+										"stats"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"payments\": 15,\n  \"courses\": 8,\n  \"students\": 12,\n  \"teachers\": 5,\n  \"total\": 40\n}"
+						}
+					]
+				},
+				{
+					"name": "Clear Payment Cache",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/cache/clear/payment",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"payment"
+							]
+						},
+						"description": "Clear payment cache. Requires admin authentication."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{admin_token}}"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/payments/cache/clear/payment",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"payments",
+										"cache",
+										"clear",
+										"payment"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"message\": \"payment cache cleared successfully\",\n  \"cleared\": true\n}"
+						}
+					]
+				},
+				{
+					"name": "Clear Course Cache",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/cache/clear/course",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"course"
+							]
+						},
+						"description": "Clear course cache. Requires admin authentication."
+					}
+				},
+				{
+					"name": "Clear Student Cache",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/cache/clear/student",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"student"
+							]
+						},
+						"description": "Clear student cache. Requires admin authentication."
+					}
+				},
+				{
+					"name": "Clear Teacher Cache",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{admin_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/payments/cache/clear/teacher",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"teacher"
+							]
+						},
+						"description": "Clear teacher cache. Requires admin authentication."
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set dynamic variables for testing",
+					"if (!pm.environment.get('base_url')) {",
+					"    pm.environment.set('base_url', 'http://127.0.0.1:8080');",
+					"}",
+					"",
+					"// Set default test data if not already set",
+					"if (!pm.environment.get('course_id')) {",
+					"    pm.environment.set('course_id', 'test-course-123');",
+					"}",
+					"",
+					"if (!pm.environment.get('student_first_name')) {",
+					"    pm.environment.set('student_first_name', 'John');",
+					"}",
+					"",
+					"if (!pm.environment.get('student_last_name')) {",
+					"    pm.environment.set('student_last_name', 'Doe');",
+					"}",
+					"",
+					"if (!pm.environment.get('student_phone')) {",
+					"    pm.environment.set('student_phone', '+84901234567');",
+					"}",
+					"",
+					"if (!pm.environment.get('preferred_start_date')) {",
+					"    const nextWeek = new Date();",
+					"    nextWeek.setDate(nextWeek.getDate() + 7);",
+					"    pm.environment.set('preferred_start_date', nextWeek.toISOString());",
+					"}",
+					"",
+					"if (!pm.environment.get('special_requests')) {",
+					"    pm.environment.set('special_requests', 'Prefer morning classes');",
+					"}",
+					"",
+					"if (!pm.environment.get('coupon_code')) {",
+					"    pm.environment.set('coupon_code', 'WELCOME10');",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test for all requests",
+					"pm.test(\"Response time is less than 10 seconds\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+					"});",
+					"",
+					"pm.test(\"Response has proper content type\", function () {",
+					"    if (pm.response.headers.has('Content-Type')) {",
+					"        pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"    }",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:8080",
+			"type": "string"
+		},
+		{
+			"key": "course_id",
+			"value": "test-course-123",
+			"type": "string"
+		},
+		{
+			"key": "student_first_name",
+			"value": "John",
+			"type": "string"
+		},
+		{
+			"key": "student_last_name",
+			"value": "Doe",
+			"type": "string"
+		},
+		{
+			"key": "student_phone",
+			"value": "+84901234567",
+			"type": "string"
+		},
+		{
+			"key": "preferred_start_date",
+			"value": "2025-09-01T09:00:00Z",
+			"type": "string"
+		},
+		{
+			"key": "special_requests",
+			"value": "Prefer morning classes",
+			"type": "string"
+		},
+		{
+			"key": "coupon_code",
+			"value": "WELCOME10",
+			"type": "string"
+		},
+		{
+			"key": "admin_token",
+			"value": "your_admin_jwt_token_here",
+			"type": "string"
+		}
+	]
+}

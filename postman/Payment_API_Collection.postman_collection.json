@@ -1,0 +1,878 @@
+{
+	"info": {
+		"_postman_id": "payment-api-collection-enhanced-2025",
+		"name": "Enhanced Payment API Collection",
+		"description": "Enhanced API collection for Payment processing with caching, course payments, lesson packages, and VNPAY integration",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "payment-api-endpoints",
+		"version": "2.0.0"
+	},
+	"item": [
+		{
+			"name": "🆕 Enhanced Payment URLs (NEW)",
+			"description": "New enhanced payment URL creation endpoints with caching support",
+			"item": [
+				{
+					"name": "Create Course Payment URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+84901234567\",\n  \"preferredStartDate\": \"2024-03-01\",\n  \"specialRequests\": \"Focus on business English and presentation skills\",\n  \"couponCode\": \"WELCOME10\",\n  \"bankCode\": \"NCB\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/create-payment-url",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"create-payment-url"
+							]
+						},
+						"description": "Create payment URL for course purchase with guest checkout and caching (Public endpoint)"
+					}
+				},
+				{
+					"name": "Create Lesson Package Payment URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"teacherId\": \"{{teacherId}}\",\n  \"numberOfLessons\": 10,\n  \"durationPerLesson\": 60,\n  \"packageType\": \"PACKAGE_10\",\n  \"couponCode\": \"STUDENT15\",\n  \"bankCode\": \"NCB\",\n  \"notes\": \"Focus on conversation skills and grammar\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/create-lesson-package-payment-url",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"create-lesson-package-payment-url"
+							]
+						},
+						"description": "Create payment URL for lesson package with caching (Student only)"
+					}
+				},
+				{
+					"name": "Simple Course Payment (Legacy)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"courseId\": \"{{courseId}}\",\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"phoneNumber\": \"+84901234568\",\n  \"preferredStartDate\": \"2024-03-15\",\n  \"specialRequests\": \"Beginner level, need flexible schedule\",\n  \"couponCode\": \"FIRSTCOURSE\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/simple/course",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"simple",
+								"course"
+							]
+						},
+						"description": "Legacy simple course payment endpoint (Public endpoint)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Payment Management",
+			"item": [
+				{
+					"name": "Create Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"lessonPackageId\": \"{{lessonPackageId}}\",\n  \"teacherId\": \"{{teacherId}}\",\n  \"paymentMethod\": \"VNPAY\",\n  \"couponCode\": \"DISCOUNT10\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments"
+							]
+						},
+						"description": "Create payment for lesson package (Student only)"
+					}
+				},
+				{
+					"name": "Get Payment by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/{{paymentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"{{paymentId}}"
+							]
+						},
+						"description": "Get payment by ID (Student/Admin only)"
+					}
+				},
+				{
+					"name": "Get Payment Result",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/result/{{paymentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"result",
+								"{{paymentId}}"
+							]
+						},
+						"description": "Get payment result by ID (Student/Admin only)"
+					}
+				},
+				{
+					"name": "Get Payment History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/history?page=1&limit=10&status=COMPLETED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"history"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "status",
+									"value": "COMPLETED"
+								}
+							]
+						},
+						"description": "Get payment history for current user (Student only)"
+					}
+				},
+				{
+					"name": "Get Payment Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"stats"
+							]
+						},
+						"description": "Get payment statistics (Admin only)"
+					}
+				}
+			]
+		},
+		{
+			"name": "VNPAY Integration",
+			"item": [
+				{
+					"name": "Create VNPAY Payment URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/{{paymentId}}/vnpay?bankCode=NCB",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"{{paymentId}}",
+								"vnpay"
+							],
+							"query": [
+								{
+									"key": "bankCode",
+									"value": "NCB"
+								}
+							]
+						},
+						"description": "Create VNPAY payment URL (Student only)"
+					}
+				},
+				{
+					"name": "VNPAY Return Handler",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payments/vnpay/return?vnp_Amount=10000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP01234567&vnp_CardType=ATM&vnp_OrderInfo=Payment%20for%20lesson%20package&vnp_PayDate=20240115140000&vnp_ResponseCode=00&vnp_TmnCode=2QXUI4J4&vnp_TransactionNo=14154488&vnp_TransactionStatus=00&vnp_TxnRef=12345678&vnp_SecureHash=sample_secure_hash",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"vnpay",
+								"return"
+							],
+							"query": [
+								{
+									"key": "vnp_Amount",
+									"value": "10000000"
+								},
+								{
+									"key": "vnp_BankCode",
+									"value": "NCB"
+								},
+								{
+									"key": "vnp_BankTranNo",
+									"value": "VNP01234567"
+								},
+								{
+									"key": "vnp_CardType",
+									"value": "ATM"
+								},
+								{
+									"key": "vnp_OrderInfo",
+									"value": "Payment%20for%20lesson%20package"
+								},
+								{
+									"key": "vnp_PayDate",
+									"value": "20240115140000"
+								},
+								{
+									"key": "vnp_ResponseCode",
+									"value": "00"
+								},
+								{
+									"key": "vnp_TmnCode",
+									"value": "2QXUI4J4"
+								},
+								{
+									"key": "vnp_TransactionNo",
+									"value": "14154488"
+								},
+								{
+									"key": "vnp_TransactionStatus",
+									"value": "00"
+								},
+								{
+									"key": "vnp_TxnRef",
+									"value": "12345678"
+								},
+								{
+									"key": "vnp_SecureHash",
+									"value": "sample_secure_hash"
+								}
+							]
+						},
+						"description": "Handle VNPAY payment return (Public endpoint)"
+					}
+				},
+				{
+					"name": "VNPAY IPN Handler",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vnp_Amount\": \"10000000\",\n  \"vnp_BankCode\": \"NCB\",\n  \"vnp_BankTranNo\": \"VNP01234567\",\n  \"vnp_CardType\": \"ATM\",\n  \"vnp_OrderInfo\": \"Payment for lesson package\",\n  \"vnp_PayDate\": \"20240115140000\",\n  \"vnp_ResponseCode\": \"00\",\n  \"vnp_TmnCode\": \"2QXUI4J4\",\n  \"vnp_TransactionNo\": \"14154488\",\n  \"vnp_TransactionStatus\": \"00\",\n  \"vnp_TxnRef\": \"12345678\",\n  \"vnp_SecureHash\": \"sample_secure_hash\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/vnpay/ipn",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"vnpay",
+								"ipn"
+							]
+						},
+						"description": "Handle VNPAY IPN (Instant Payment Notification) (Public endpoint)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Package Management",
+			"item": [
+				{
+					"name": "Get Teacher Packages",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/packages/teacher/{{teacherId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"packages",
+								"teacher",
+								"{{teacherId}}"
+							]
+						},
+						"description": "Get available lesson packages for a teacher (Student only)"
+					}
+				},
+				{
+					"name": "Calculate Custom Package",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"numberOfLessons\": 10,\n  \"basePrice\": 500000\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/calculate-custom-package",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"calculate-custom-package"
+							]
+						},
+						"description": "Calculate price for custom lesson package (Student only)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Coupon & Discounts",
+			"item": [
+				{
+					"name": "Apply Coupon",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"couponCode\": \"DISCOUNT10\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/{{paymentId}}/coupon",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"{{paymentId}}",
+								"coupon"
+							]
+						},
+						"description": "Apply coupon code to payment (Student only)"
+					}
+				}
+			]
+		},
+		{
+			"name": "Reference Data",
+			"item": [
+				{
+					"name": "Get Payment Methods",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payments/methods",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"methods"
+							]
+						},
+						"description": "Get available payment methods with supported banks (Public endpoint)"
+					}
+				}
+			]
+		},
+		{
+			"name": "🔔 Payment Webhooks & Callbacks",
+			"description": "VNPAY webhook handling and return URLs with caching integration",
+			"item": [
+				{
+					"name": "VNPAY Webhook (IPN)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "vnp_TmnCode",
+									"value": "VNPAY_TEST",
+									"description": "Terminal/Merchant Code"
+								},
+								{
+									"key": "vnp_Amount",
+									"value": "5000000",
+									"description": "Amount in VND (x100)"
+								},
+								{
+									"key": "vnp_BankCode",
+									"value": "NCB",
+									"description": "Bank code"
+								},
+								{
+									"key": "vnp_CreateDate",
+									"value": "20240301120000",
+									"description": "Create date (yyyyMMddHHmmss)"
+								},
+								{
+									"key": "vnp_CurrCode",
+									"value": "VND",
+									"description": "Currency code"
+								},
+								{
+									"key": "vnp_IpAddr",
+									"value": "192.168.1.100",
+									"description": "Customer IP address"
+								},
+								{
+									"key": "vnp_Locale",
+									"value": "vn",
+									"description": "Language"
+								},
+								{
+									"key": "vnp_OrderInfo",
+									"value": "Thanh toan khoa hoc",
+									"description": "Order description"
+								},
+								{
+									"key": "vnp_ResponseCode",
+									"value": "00",
+									"description": "Response code (00 = success)"
+								},
+								{
+									"key": "vnp_TxnRef",
+									"value": "TX123456789",
+									"description": "Transaction reference"
+								},
+								{
+									"key": "vnp_TransactionNo",
+									"value": "13728332",
+									"description": "VNPAY transaction number"
+								},
+								{
+									"key": "vnp_TransactionStatus",
+									"value": "00",
+									"description": "Transaction status (00 = success)"
+								},
+								{
+									"key": "vnp_PayDate",
+									"value": "20240301120500",
+									"description": "Payment date (yyyyMMddHHmmss)"
+								},
+								{
+									"key": "vnp_SecureHash",
+									"value": "{{vnpaySecureHash}}",
+									"description": "Security hash for verification"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/payments/webhook/vnpay",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"webhook",
+								"vnpay"
+							]
+						},
+						"description": "VNPAY webhook endpoint for payment notifications (IPN) - Called by VNPAY servers"
+					}
+				},
+				{
+					"name": "VNPAY Return URL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/payments/webhook/vnpay/return?vnp_Amount=5000000&vnp_BankCode=NCB&vnp_CreateDate=20240301120000&vnp_CurrCode=VND&vnp_IpAddr=192.168.1.100&vnp_Locale=vn&vnp_OrderInfo=Thanh%20toan%20khoa%20hoc&vnp_ResponseCode=00&vnp_TxnRef=TX123456789&vnp_TransactionNo=13728332&vnp_TransactionStatus=00&vnp_PayDate=20240301120500&vnp_SecureHash={{vnpaySecureHash}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"webhook",
+								"vnpay",
+								"return"
+							],
+							"query": [
+								{
+									"key": "vnp_Amount",
+									"value": "5000000",
+									"description": "Amount in VND (x100)"
+								},
+								{
+									"key": "vnp_BankCode",
+									"value": "NCB",
+									"description": "Bank code"
+								},
+								{
+									"key": "vnp_CreateDate",
+									"value": "20240301120000",
+									"description": "Create date"
+								},
+								{
+									"key": "vnp_CurrCode",
+									"value": "VND",
+									"description": "Currency"
+								},
+								{
+									"key": "vnp_IpAddr",
+									"value": "192.168.1.100",
+									"description": "IP address"
+								},
+								{
+									"key": "vnp_Locale",
+									"value": "vn",
+									"description": "Language"
+								},
+								{
+									"key": "vnp_OrderInfo",
+									"value": "Thanh toan khoa hoc",
+									"description": "Order info"
+								},
+								{
+									"key": "vnp_ResponseCode",
+									"value": "00",
+									"description": "Response code"
+								},
+								{
+									"key": "vnp_TxnRef",
+									"value": "TX123456789",
+									"description": "Transaction reference"
+								},
+								{
+									"key": "vnp_TransactionNo",
+									"value": "13728332",
+									"description": "VNPAY transaction number"
+								},
+								{
+									"key": "vnp_TransactionStatus",
+									"value": "00",
+									"description": "Transaction status"
+								},
+								{
+									"key": "vnp_PayDate",
+									"value": "20240301120500",
+									"description": "Payment date"
+								},
+								{
+									"key": "vnp_SecureHash",
+									"value": "{{vnpaySecureHash}}",
+									"description": "Security hash"
+								}
+							]
+						},
+						"description": "VNPAY return URL - Where users are redirected after payment"
+					}
+				}
+			]
+		},
+		{
+			"name": "💾 Cache Management",
+			"description": "Payment cache monitoring and management endpoints",
+			"item": [
+				{
+					"name": "Get Cache Statistics",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/cache/stats",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"stats"
+							]
+						},
+						"description": "Get payment cache statistics and metrics (Admin only)"
+					}
+				},
+				{
+					"name": "Clear Payment Cache",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/cache/clear/payment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"payment"
+							]
+						},
+						"description": "Clear specific payment cache entries (Admin only)"
+					}
+				},
+				{
+					"name": "Clear Student Cache",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/cache/clear/student",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"student"
+							]
+						},
+						"description": "Clear student info cache entries (Admin only)"
+					}
+				},
+				{
+					"name": "Clear Course Cache",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/cache/clear/course",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"course"
+							]
+						},
+						"description": "Clear course info cache entries (Admin only)"
+					}
+				},
+				{
+					"name": "Clear All Cache",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/payments/cache/clear/all",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"payments",
+								"cache",
+								"clear",
+								"all"
+							]
+						},
+						"description": "Clear all payment-related cache entries (Admin only)"
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "your_jwt_token_here",
+			"type": "string"
+		},
+		{
+			"key": "paymentId",
+			"value": "payment_id_here",
+			"type": "string"
+		},
+		{
+			"key": "teacherId",
+			"value": "teacher_id_here",
+			"type": "string"
+		},
+		{
+			"key": "lessonPackageId",
+			"value": "lesson_package_id_here",
+			"type": "string"
+		},
+		{
+			"key": "courseId",
+			"value": "course_id_here",
+			"type": "string"
+		},
+		{
+			"key": "vnpaySecureHash",
+			"value": "sample_secure_hash_here",
+			"type": "string"
+		}
+	]
+}
