@@ -139,7 +139,7 @@ redis-cli: ## Open Redis CLI
 security-scan: ## Run security scan on images
 	@echo "Scanning Docker images for vulnerabilities..."
 	@docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-		aquasec/trivy image realtime-server || echo "Trivy not available"
+		aquasec/trivy image reform-antoree || echo "Trivy not available"
 
 update-images: ## Update all Docker images
 	docker-compose pull
