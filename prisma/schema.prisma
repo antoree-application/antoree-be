@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider     = "postgresql"
-  url          = "postgresql://admin:adminpassword@localhost:5432/main_db"
+  url          = env("DATABASE_URL")
   relationMode = "foreignKeys"
 }
 
@@ -73,6 +73,21 @@ enum RateType {
   INTENSIVE_COURSE
 }
 
+enum CourseType {
+  STRUCTURED_COURSE // Pre-designed course with fixed curriculum
+  FLEXIBLE_LESSONS // Individual lessons that can be booked separately
+  INTENSIVE_COURSE // Intensive course with specific schedule
+  GROUP_COURSE // Group course for multiple students
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  SUSPENDED
+}
+
 // Bảng người dùng chung
 model User {
   id          String   @id @default(cuid())
@@ -99,24 +114,24 @@ model User {
 
 // Bảng học viên
 model Student {
-  id            String       @id @default(cuid())
-  userId        String       @unique
+  id            String       @id // Use the same ID as User
   englishLevel  EnglishLevel @default(BEGINNER)
   learningGoals String?
   timezone      String       @default("Asia/Ho_Chi_Minh")
   
   // Relations
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bookings Booking[]
-  lessons  Lesson[]
+  user              User               @relation(fields: [id], references: [id], onDelete: Cascade)
+  bookings          Booking[]
+  lessons           Lesson[]
+  lessonPackages    LessonPackage[]
+  courseEnrollments CourseEnrollment[]
 
   @@map("students")
 }
 
 // Bảng giáo viên
 model Teacher {
-  id                String        @id @default(cuid())
-  userId            String        @unique
+  id                String        @id // Use the same ID as User
   bio               String?
   experience        Int           @default(0) // Số năm kinh nghiệm
   education         String?
@@ -140,14 +155,15 @@ model Teacher {
   bookingInstructions String?     // Instructions for students when booking
   
   // Relations
-  user          User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User                  @relation(fields: [id], references: [id], onDelete: Cascade)
   availabilities TeacherAvailability[]
-  rates         TeacherRate[]
-  bookings      Booking[]
-  lessons       Lesson[]
-  reviews       Review[]
-  courses       Course[]
-  verification  TeacherVerification?
+  rates          TeacherRate[]
+  bookings       Booking[]
+  lessons        Lesson[]
+  reviews        Review[]
+  courses        Course[]
+  verification   TeacherVerification?
+  lessonPackages LessonPackage[]
 
   @@map("teachers")
 }
@@ -174,13 +190,13 @@ model TeacherVerification {
 
 // Individual verification documents
 model TeacherVerificationDocument {
-  id                      String             @id @default(cuid())
-  teacherVerificationId   String
-  type                    DocumentType
-  title                   String
-  documentUrl             String
-  description             String?
-  createdAt               DateTime           @default(now())
+  id                    String       @id @default(cuid())
+  teacherVerificationId String
+  type                  DocumentType
+  title                 String
+  documentUrl           String
+  description           String?
+  createdAt             DateTime     @default(now())
 
   // Relations
   teacherVerification TeacherVerification @relation(fields: [teacherVerificationId], references: [id], onDelete: Cascade)
@@ -190,11 +206,11 @@ model TeacherVerificationDocument {
 
 // Lịch rảnh của giáo viên
 model TeacherAvailability {
-  id        String            @id @default(cuid())
+  id        String           @id @default(cuid())
   teacherId String
-  dayOfWeek Int              // 0-6 (Chủ nhật-Thứ 7)
-  startTime String           // HH:mm format
-  endTime   String           // HH:mm format
+  dayOfWeek Int // 0-6 (Chủ nhật-Thứ 7)
+  startTime String // HH:mm format
+  endTime   String // HH:mm format
   type      AvailabilityType @default(REGULAR)
   isActive  Boolean          @default(true)
   createdAt DateTime         @default(now())
@@ -213,7 +229,7 @@ model TeacherRate {
   type        RateType
   rate        Decimal  @db.Decimal(10, 2)
   duration    Int?     @default(60) // Duration in minutes
-  maxStudents Int?     @default(1)  // For group lessons
+  maxStudents Int?     @default(1) // For group lessons
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -223,6 +239,62 @@ model TeacherRate {
 
   @@unique([teacherId, type])
   @@map("teacher_rates")
+}
+
+// Course Enrollment - when student purchases a course
+model CourseEnrollment {
+  id               String           @id @default(cuid())
+  studentId        String
+  courseId         String
+  paymentId        String           @unique // Link to payment record
+  status           EnrollmentStatus @default(ACTIVE)
+  enrolledAt       DateTime         @default(now())
+  expiresAt        DateTime? // Course access expiration (if applicable)
+  completedLessons Int              @default(0) // Number of lessons completed
+  progress         Decimal?         @default(0.0) @db.Decimal(5, 2) // Course completion percentage
+  lastAccessedAt   DateTime? // When student last accessed the course
+  completedAt      DateTime? // When student completed the course
+  certificateUrl   String? // Certificate URL if course is completed
+  enrollmentNotes  String? // Additional notes about enrollment
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  // Relations
+  student  Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course   Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  payment  Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  // bookings Booking[]
+
+  @@unique([studentId, courseId]) // Student can only enroll once per course
+  @@map("course_enrollments")
+}
+
+// Lesson Package Model for tracking purchased lesson packages (separate from courses)
+model LessonPackage {
+  id                String   @id @default(cuid())
+  studentId         String
+  teacherId         String
+  packageType       String   // PACKAGE_5, PACKAGE_10, PACKAGE_20, CUSTOM
+  totalLessons      Int      // Total number of lessons in package
+  usedLessons       Int      @default(0) // Number of lessons used
+  remainingLessons  Int      // Calculated field: totalLessons - usedLessons
+  durationPerLesson Int      @default(60) // Duration per lesson in minutes
+  pricePerLesson    Decimal  @db.Decimal(10, 2)
+  totalPrice        Decimal  @db.Decimal(10, 2)
+  discountPercentage Int?    @default(0)
+  paymentId         String   @unique // Link to payment record
+  expiresAt         DateTime // Package expiration date
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher  Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  payment  Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@map("lesson_packages")
 }
 
 // Gói học
@@ -240,9 +312,10 @@ model Course {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  teacher  Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  bookings Booking[]
-  lessons  Lesson[]
+  teacher     Teacher            @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+  lessons     Lesson[]
+  enrollments CourseEnrollment[]
 
   @@map("courses")
 }
@@ -253,6 +326,7 @@ model Booking {
   studentId     String
   teacherId     String
   courseId      String?
+  lessonPackageId String?     // Link to lesson package if booked through package
   scheduledAt   DateTime
   duration      Int           @default(30) // Phút
   notes         String?
@@ -262,10 +336,11 @@ model Booking {
   updatedAt     DateTime      @updatedAt
 
   // Relations
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  teacher Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  course  Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
-  lesson  Lesson?
+  student       Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  teacher       Teacher        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  course        Course?        @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  lessonPackage LessonPackage? @relation(fields: [lessonPackageId], references: [id], onDelete: SetNull)
+  lesson        Lesson?
 
   @@map("bookings")
 }
@@ -274,23 +349,23 @@ model Booking {
 model Lesson {
   id          String       @id @default(cuid())
   bookingId   String?      @unique
-  studentId   String
+  studentId   String?
   teacherId   String
   courseId    String?
   scheduledAt DateTime
   startedAt   DateTime?
   endedAt     DateTime?
   duration    Int          @default(60) // Phút
-  meetingUrl  String?      // Link meeting
-  notes       String?      // Ghi chú của giáo viên
-  homework    String?      // Bài tập về nhà
+  meetingUrl  String? // Link meeting
+  notes       String? // Ghi chú của giáo viên
+  homework    String? // Bài tập về nhà
   status      LessonStatus @default(SCHEDULED)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   // Relations
   booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  student Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student Student?  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   teacher Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   course  Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
@@ -303,16 +378,18 @@ model Payment {
   userId        String
   amount        Decimal       @db.Decimal(10, 2)
   currency      String        @default("VND")
-  paymentMethod String        // MOMO, VNPAY, BANK_TRANSFER, etc.
+  paymentMethod String // MOMO, VNPAY, BANK_TRANSFER, etc.
   transactionId String?       @unique
   status        PaymentStatus @default(PENDING)
   description   String?
-  metadata      Json?         // Thông tin bổ sung
+  metadata      Json? // Thông tin bổ sung
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
   // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonPackage    LessonPackage?
+  courseEnrollment CourseEnrollment?
 
   @@map("payments")
 }
